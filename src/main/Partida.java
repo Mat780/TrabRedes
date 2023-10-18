@@ -1,11 +1,14 @@
 package main;
 
+import java.io.Serializable;
+
 import excecoes.ExcecaoPartidaCheia;
 import jogo.Castelo;
 import jogo.Peca;
 
-public class Partida {
+public class Partida implements Serializable {
 	
+	private static final long serialVersionUID = 6813387199836623368L;
 	private Usuario jogador1;
 	private Usuario jogador2;
 	private Usuario jogador3 = null;
@@ -20,19 +23,19 @@ public class Partida {
 		casteloInimigo = new Castelo(10, 0, null, null);
 	}
 	
-	private void setJ1(Usuario j1) {
+	public void setJ1(Usuario j1) {
 		jogador1 = j1;
 	}
 	
-	private void setJ2(Usuario j2) {
+	public void setJ2(Usuario j2) {
 		jogador2 = j2;
 	}
 	
-	private void setJ3(Usuario j3) {
+	public void setJ3(Usuario j3) {
 		jogador3 = j3;
 	}
 	
-	private void setJ4(Usuario j4) {
+	public void setJ4(Usuario j4) {
 		jogador4 = j4;
 	}
 	
@@ -50,6 +53,14 @@ public class Partida {
 	
 	public void setPecaJ4(Peca p1, Peca p2) {
 		casteloInimigo.trocaPecasJ2(p1, p2);
+	}
+
+	public void setCasteloAliado(Castelo aliado) {
+		this.casteloAliado = aliado;
+	}
+	
+	public void setCasteloInimigo(Castelo inimigo) {
+		this.casteloInimigo = inimigo;
 	}
 	
 	public Usuario getJ1() {

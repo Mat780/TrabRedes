@@ -19,6 +19,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
 
+import main.Cliente;
 import main.Partida;
 import main.Usuario;
 
@@ -31,12 +32,15 @@ public class PainelListagemJogando implements Painel{
 	private JButton botaoAtualizar;
 	private JLabel labelOnline;
 	private JLabel labelJogando;
+	private Cliente cliente;
 	
-	public PainelListagemJogando() {
+	public PainelListagemJogando(Cliente cliente) {
 		painel = new JPanel();
 		painel.setBackground(Color.GRAY);
 		painel.setMaximumSize(new Dimension(800, 600));
 		painel.setLayout(null);
+		
+		this.cliente = cliente;
 		
 		JPanel painelDelimitador = new JPanel();
 		painelDelimitador.setBorder(new EmptyBorder(10, 20, 10, 20));
@@ -108,14 +112,16 @@ public class PainelListagemJogando implements Painel{
 	private void atualizarLista() {
 		listaPartidas.removeAllElements();
 		
-		//TODO Chamar o banco de dados e registrar tudo denovo
-		for(int i = 0; i < 30; i += 2) {
-			listaPartidas.addElement(new Partida(new Usuario("Teste", "T" + i, "senhaManeira", 55555), new Usuario("Teste2", "T" + (i + 1), "senhaManeira", 55555)));			
+		try {
+			listaPartidas.addAll(cliente.listarJogando());
+			
+			labelJogando.setText("Jogando: " + cliente.getQtdJogando());
+			labelOnline.setText("Online: " + cliente.getQtdOnline());
+			
+		} catch (Exception e) {
+			System.err.println("Erro: Ao atualizar a lista de jogadores que estão jogando");
+			e.printStackTrace();
 		}
-		
-		//TODO Fazer as linha abaixo funcionar
-		//labelCadastrados.setText("Cadastrados: " + getCadastrados());
-		//labelOnline.setText("Online: " + getOnline());
 		
 		// Após a att é precisa setar novamente
 		listaNoPainel.setModel(listaPartidas);

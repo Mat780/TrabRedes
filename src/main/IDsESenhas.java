@@ -66,7 +66,6 @@ public class IDsESenhas {
 		
 		if (cadastro[0].equals(senha)) {
 			jogadoresOnline.put(usuario, cadastro);
-			System.out.println(cadastro[2]);
 			String str = Usuario.staticToString(usuario, cadastro[2], cadastro[3]);
 			makeLog("Usuario " + str + " conectou-se");
 			makeLog("Usuario " + str + " tornou-se INATIVO");

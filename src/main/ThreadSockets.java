@@ -97,18 +97,23 @@ public class ThreadSockets extends Thread {
 						
 						saida.writeObject("Ok");
 						
-						saida.close();
-						entrada.close();
-						socket.close();
-												
-					} else if (protocolo.equals(Protocolos.STAY_ALIVE.name())) {
-						System.out.println("Cliente mandou oi");
+					} else if (protocolo.equals(Protocolos.GET_QTD_CADASTRADOS.name())) {
+						saida.writeObject(IDsESenhas.getQtdRegistrado());
+						saida.writeObject("Ok");
+						
+					} else if (protocolo.equals(Protocolos.GET_QTD_ONLINE.name())) {
+						saida.writeObject(IDsESenhas.getQtdOnline());
+						saida.writeObject("Ok");
+						
+					} else if (protocolo.equals(Protocolos.GET_QTD_JOGANDO.name())) {
+						saida.writeObject(IDsESenhas.getQtdJogando());
 						
 					} else if (protocolo.equals("Msg")) { //! Debug
 						String m = (String) entrada.readObject();
 						saida.writeObject(m.toUpperCase());
-					} else {
-						System.out.println("Erro indeterminado ao receber: " + protocolo + System.getProperty("line separator") + ", Conexao será fechada por conta deste erro");
+						
+					} else if (protocolo.equals(Protocolos.STAY_ALIVE.name()) == false) {
+						System.out.println("Erro indeterminado ao receber: " + protocolo + ", Conexao será fechada por conta deste erro");
 						online = false;
 					}
 					
@@ -121,6 +126,14 @@ public class ThreadSockets extends Thread {
 				}
 				online = false;
 				
+			} catch (SocketException e) {
+				// Quando o cliente fecha a aplicação dele ele solta um connection reset
+				// Portanto coloquei um if para caso não seja isso, ele avise de possiveis problemas
+				if (e.getMessage().equals("Connection reset") == false) {
+					e.printStackTrace();
+				}
+				online = false;
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 				online = false;
@@ -130,10 +143,14 @@ public class ThreadSockets extends Thread {
 		System.out.println("Fechando conexão");
 		
 		try {
+			saida.close();
+			entrada.close();
 			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-			
+		
+		
+
 	}
 }

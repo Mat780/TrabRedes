@@ -6,11 +6,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import main.Cliente;
 import main.Usuario;
 
 import javax.swing.JList;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.awt.Dimension;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -32,13 +35,15 @@ public class PainelListagemOnline implements Painel {
 	private JButton botaoAtualizar;
 	private JLabel labelCadastrados;
 	private JLabel labelOnline;
-	//TODO Conectar com o servidor
+	private Cliente cliente;
 	
-	PainelListagemOnline() {
+	PainelListagemOnline(Cliente cliente) {
 		painel = new JPanel();
 		painel.setBackground(Color.GRAY);
 		painel.setMaximumSize(new Dimension(800, 600));
 		painel.setLayout(null);
+		
+		this.cliente = cliente;
 		
 		JPanel painelDelimitador = new JPanel();
 		painelDelimitador.setBorder(new EmptyBorder(10, 20, 10, 20));
@@ -112,19 +117,20 @@ public class PainelListagemOnline implements Painel {
 		painelDelimitador.setLayout(gl_painelDelimitador);
 	}
 	
-	public void atualizarLista() {
+	public void atualizarLista(){
 		listaUsuarios.removeAllElements();
 		
-		//TODO Chamar o banco de dados e registrar tudo denovo
-		for(int i = 0; i < 30; i++) {
-			listaUsuarios.addElement(new Usuario("Teste", "T", "senhaManeira", 55555));			
+		try {
+			listaUsuarios.addAll(cliente.listarOnline());
+			
+			labelCadastrados.setText("Cadastrados: " + cliente.getQtdCadastrados());
+			labelOnline.setText("Online: " + cliente.getQtdOnline());
+			
+		} catch (Exception e) {
+			System.err.println("Erro: Ao atualizar lista de jogadores online");
+			e.printStackTrace();
 		}
 		
-		//TODO Fazer a linha abaixo funcionar
-		//labelCadastrados.setText("Cadastrados: " + getCadastrados());
-		labelOnline.setText("Online: " + listaUsuarios.getSize());
-		
-		// Após a att é precisa setar novamente
 		listaNoPainel.setModel(listaUsuarios);
 	}
 	

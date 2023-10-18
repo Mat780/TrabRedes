@@ -3,17 +3,21 @@ package main;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Servidor {
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		ServerSocket servidorSocket = new ServerSocket(55555);
+		
 		IDsESenhas.inicializar();
 		
 		while (true) {
+			System.out.println("Threads ativas: "+ Thread.activeCount());
 			Socket socket = servidorSocket.accept();
 			
 			ThreadSockets thread = new ThreadSockets(socket);
+			
 			thread.start();
 		}
 		

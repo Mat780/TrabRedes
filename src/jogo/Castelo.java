@@ -1,6 +1,10 @@
 package jogo;
 
-public class Castelo {
+import java.io.Serializable;
+
+public class Castelo implements Serializable {
+	
+	private static final long serialVersionUID = -360944243657702826L;
 	private int vida;
 	private int muro;
 	private Peca peca1J1;

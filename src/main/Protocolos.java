@@ -8,7 +8,12 @@ public enum Protocolos {
 	LIST_USER_PLAYING,  // Somente Cliente/Servidor
 	UPDATE_PORT, 		// Somente Cliente/Servidor
 	GAME_HUB,			// Somente Cliente/Servidor
+	GET_QTD_CADASTRADOS,// Somente Cliente/Servidor
+	GET_QTD_ONLINE,		// Somente Cliente/Servidor
+	GET_QTD_JOGANDO, 	// Somente Cliente/Servidor
 	GAME_INI, 			// Somente Peer to peer
+	GAME_ENTER,			// Somente Peer to peer
+	GAME_UPDATE,		// Somente Peer to peer
 	GAME_ACK, 			// Somente peer to peer
 	GAME_NEG, 			// Somente peer to peer
 	GAME_OVER, 			// Cliente/Servidor e Peer to peer

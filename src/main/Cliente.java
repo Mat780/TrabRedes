@@ -1,11 +1,13 @@
 package main;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -17,7 +19,18 @@ public class Cliente {
 	private Timer timer;
 	
 	public Cliente() throws IOException {
-		clienteSocket = new Socket ("127.0.0.1", 55555);
+		
+		String ipServer = null;
+		
+		try (FileReader leitorDoIPDoServer = new FileReader("src/main/config")) {
+			Properties propriedades = new Properties();
+			propriedades.load(leitorDoIPDoServer);
+			ipServer = propriedades.getProperty("SERVER_IP");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		clienteSocket = new Socket (ipServer, 55555);
 		saida = new ObjectOutputStream(clienteSocket.getOutputStream());
 		entrada = new ObjectInputStream(clienteSocket.getInputStream());
 		timer = new Timer();
@@ -39,15 +52,22 @@ public class Cliente {
 		}, 5000, 5000);
 	}
 	
-	public Usuario loginUsuario(String usuario, String senha) throws IOException, ClassNotFoundException {
+	public String[] loginUsuario(String usuario, String senha) throws IOException {
 		saida.writeObject(Protocolos.LOGIN.name());
 		saida.writeObject(usuario);
 		saida.writeObject(senha);
 		
-		String[] resposta = (String[]) entrada.readObject();
+		String[] resposta = new String[1];
 		
-		if(resposta.length > 1) return new Usuario(usuario, senha, resposta[1], resposta[2], resposta[3]);
-		else return null;
+		try {
+			resposta = (String[]) entrada.readObject();
+		} catch (ClassNotFoundException e) {
+			System.err.println("Erro: Ao fazer cast das informações do servidor, cast de Object para String[]");
+			e.printStackTrace();
+		}
+		
+		return resposta;
+		
 	}
 	
 	public boolean register(String usuario, String senha, String nome) throws IOException, ClassNotFoundException {
@@ -62,12 +82,12 @@ public class Cliente {
 	}
 	
 	public ArrayList<Usuario> listarOnline() throws ClassNotFoundException, IOException {
-		saida.writeObject(Protocolos.LIST_USER_ON_LINE);
+		saida.writeObject(Protocolos.LIST_USER_ON_LINE.name());
 		return (ArrayList<Usuario>) entrada.readObject();
 	}
 	
 	public ArrayList<Partida> listarJogando() throws ClassNotFoundException, IOException {
-		saida.writeObject(Protocolos.LIST_USER_PLAYING);
+		saida.writeObject(Protocolos.LIST_USER_PLAYING.name());
 		return (ArrayList<Partida>) entrada.readObject();
 	}
 	
@@ -105,6 +125,27 @@ public class Cliente {
 		entrada.close();
 		timer.cancel();
 		clienteSocket.close();
+	}
+	
+	public int getQtdCadastrados() throws IOException, ClassNotFoundException {
+		saida.writeObject(Protocolos.GET_QTD_CADASTRADOS.name());
+		int retorno = (int) entrada.readObject();
+		entrada.readObject();
+		
+		return retorno;
+	}
+	
+	public int getQtdOnline() throws IOException, ClassNotFoundException {
+		saida.writeObject(Protocolos.GET_QTD_ONLINE.name());
+		int retorno = (int) entrada.readObject();
+		entrada.readObject();
+		
+		return retorno;
+	}
+	
+	public int getQtdJogando() throws IOException, ClassNotFoundException {
+		saida.writeObject(Protocolos.GET_QTD_JOGANDO.name());
+		return (int) entrada.readObject();
 	}
 	
 	public void enviarMsg(String m) throws IOException, ClassNotFoundException {

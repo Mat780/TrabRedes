@@ -15,6 +15,9 @@ import main.Partida;
 import main.Usuario;
 
 import javax.swing.SwingConstants;
+
+import controladoras.ControladorPrincipal;
+
 import java.awt.Font;
 import javax.swing.ImageIcon;
 import java.awt.GridLayout;
@@ -30,7 +33,6 @@ import javax.swing.JFrame;
 public class PainelJogo implements Painel {
 
 	private JPanel painel;
-	private JanelaPrincipal janelaMae;
 	private Painel painelDestino;
 	private JPanel painelRoleta;
 	
@@ -59,8 +61,7 @@ public class PainelJogo implements Painel {
 	
 	private ArrayList<RoletaItems> itensDaRoleta;
 	
-	public PainelJogo(JanelaPrincipal janelaMae, Painel p) {
-		this.janelaMae = janelaMae;
+	public PainelJogo(Painel p) {
 		painelDestino = p;
 		
 		itensDaRoleta = new ArrayList<>();
@@ -1112,11 +1113,11 @@ public class PainelJogo implements Painel {
 						imgMoeda3.setIcon(moedaCheia);
 						botaoRoletaRodar.setText("RODAR");
 					} else {
-						jogaJ1eJ2 = false;
+						//TODO
 						botaoRoletaRodar.setText("AGUARDE");
 					}
 					
-				} else if (jogaJ1eJ2 == false && (partida.getJ3().getIP().equals(euUsuario.getIP()) || partida.getJ4().getIP().equals(euUsuario.getIP()))) {
+				} else if (jogaJ1eJ2 == false && (partida.getJ3().equals(euUsuario) || partida.getJ4().equals(euUsuario))) {
 					// Aqui se receberia via socket do oponente
 					// E enviaria via socket o resultado aliado
 					energiaEsqInimigo = 0;
@@ -1154,21 +1155,56 @@ public class PainelJogo implements Painel {
 				
 				if (casteloAliado.getVida() <= 0 && casteloInimigo.getVida() <= 0) {
 					JOptionPane.showMessageDialog(null, "Empate, os dois reis morreram!");
-					janelaMae.trocaPainel(painelDestino);
+					ControladorPrincipal.trocaPainel(painelDestino);
 				}
 				
 				else if (casteloAliado.getVida() <= 0) {
 					JOptionPane.showMessageDialog(null, "Você perdeu, seu rei foi morto!");
-					janelaMae.trocaPainel(painelDestino);
+					ControladorPrincipal.trocaPainel(painelDestino);
 				}
 				
 				else if (casteloInimigo.getVida() <= 0) {
 					JOptionPane.showMessageDialog(null, "Parabéns você ganhou, o rei inimigo está morto!");
-					janelaMae.trocaPainel(painelDestino);
+					ControladorPrincipal.trocaPainel(painelDestino);
 				}
 				
 			}
 		}	
+	}
+	
+	public void atualizarInfoCastelo(Partida novaPartida) {
+		// Verifica qual time faço parte
+		// Verifica se eu estou jogando
+		
+		if (novaPartida.getJ1().equals(euUsuario) || novaPartida.getJ3().equals(euUsuario)) {
+			
+			boolean souJ1eEstouJogando = novaPartida.getJ1().equals(euUsuario) && jogaJ1eJ2;
+			boolean souJ3eEstouJogando = novaPartida.getJ3().equals(euUsuario) && jogaJ1eJ2 == false;
+			
+			if(souJ1eEstouJogando || souJ3eEstouJogando) {
+				partida.setCasteloAliado(novaPartida.getCasteloAliado());
+				
+			} else { // Atualiza tudo
+				partida.setCasteloAliado(novaPartida.getCasteloAliado());
+				partida.setCasteloInimigo(novaPartida.getCasteloInimigo());
+			}
+			
+		} else { // Faz parte de J2 ou J4
+			
+			boolean souJ2eEstouJogando = novaPartida.getJ2().equals(euUsuario) && jogaJ1eJ2;
+			boolean souJ4eEstouJogando = novaPartida.getJ4().equals(euUsuario) && jogaJ1eJ2 == false;
+			
+			if (souJ2eEstouJogando || souJ4eEstouJogando) {
+				partida.setCasteloInimigo(novaPartida.getCasteloInimigo());
+				
+			} else { // Atualiza tudo
+				partida.setCasteloAliado(novaPartida.getCasteloAliado());
+				partida.setCasteloInimigo(novaPartida.getCasteloInimigo());
+			}
+		}
+		
+		jogaJ1eJ2 = !jogaJ1eJ2;
+		
 	}
 	
 	public void setPartida(Partida p) {

@@ -1,14 +1,11 @@
 package telas;
 
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
 
+import controladoras.ControladorPrincipal;
 import jogo.ArqueiraPeca;
 import jogo.AssassinoPeca;
 import jogo.CavaleiroPeca;
@@ -34,30 +31,43 @@ import javax.swing.JComboBox;
 public class PainelHubPartida implements Painel{
 
 	private JPanel painel;
+	private Usuario euUsuario;
 	private Partida partida;
+	
+	private int qualJogadorSou;
+	
 	private JButton botaoConectar;
 	private JButton botaoAtualizar;
+	
 	private JPanel painelTimes;
 	private JPanel panelTimeVermelho;
 	private JPanel painelTimeAzul;
-	private JLabel labelTimeAzul;
-	private JLabel labelTimeVermelho;
-	private JLabel labelJogador2;
-	private JPanel painelSelecaoPecasVermelho1;
-	private JPanel painelSelecaoPecasVermelho2;
-	private JComboBox<Peca> jogador2Peca1;
-	private JComboBox<Peca> jogador2Peca2;
-	private JComboBox<Peca> jogador4Peca1;
-	private JComboBox<Peca> jogador4Peca2;
-	private JPanel painelDivisaoAzul;
-	private JLabel labelJogador1;
+		
 	private JPanel painelSelecaoPecasAzul1;
+	private JPanel painelDivisaoAzul;
+	private JLabel labelTimeAzul;
+	
+	private JLabel labelJogador1;
 	private JComboBox<Peca> jogador1Peca1;
 	private JComboBox<Peca> jogador1Peca2;
+	
 	private JLabel labelJogador3;
 	private JPanel painelSelecaoPecasAzul2;
 	private JComboBox<Peca> jogador3Peca1;
 	private JComboBox<Peca> jogador3Peca2;
+	
+	private JLabel labelTimeVermelho;
+	private JPanel painelSelecaoPecasVermelho1;
+	private JPanel painelSelecaoPecasVermelho2;
+	
+	private JLabel labelJogador2;
+	private JComboBox<Peca> jogador2Peca1;
+	private JComboBox<Peca> jogador2Peca2;
+	
+	private JLabel labelJogador4;
+	private JComboBox<Peca> jogador4Peca1;
+	private JComboBox<Peca> jogador4Peca2;
+	
 	
 	private Peca[] pecasDoJogo = {
 			new CavaleiroPeca(),
@@ -68,11 +78,13 @@ public class PainelHubPartida implements Painel{
 			new ConstrutorPeca()
 	};
 	
-	public PainelHubPartida(Painel painelAnterior) {
+	public PainelHubPartida(Usuario usuario) {
 		painel = new JPanel();
 		painel.setBackground(Color.GRAY);
 		painel.setMaximumSize(new Dimension(800, 600));
 		painel.setLayout(null);
+		
+		this.euUsuario = usuario;
 		
 		JPanel painelDelimitador = new JPanel();
 		painelDelimitador.setBorder(new EmptyBorder(10, 20, 10, 20));
@@ -87,17 +99,13 @@ public class PainelHubPartida implements Painel{
 		
 		botaoConectar = new JButton("Estou pronto!");
 		botaoConectar.setFont(new Font("Arial", Font.PLAIN, 18));
-		botaoConectar.addActionListener(e -> {
-			//TODO
-		});
+		botaoConectar.addActionListener(new ListenerConectar());
 		
 		painelBotoes.add(botaoConectar);
 		
 		botaoAtualizar = new JButton("Trocar de time");
 		botaoAtualizar.setFont(new Font("Arial", Font.PLAIN, 18));
-		botaoAtualizar.addActionListener(e -> {
-			//TODO
-		});
+		botaoAtualizar.addActionListener(new ListenerTrocaTime());
 		
 		painelBotoes.add(botaoAtualizar);
 		
@@ -315,7 +323,7 @@ public class PainelHubPartida implements Painel{
 		jogador2Peca2.setBackground(new Color(255, 170, 170));
 		painelSelecaoPecasVermelho1.add(jogador2Peca2);
 		
-		JLabel labelJogador4 = new JLabel("PlaceHolderName(IP:PORT)");
+		labelJogador4 = new JLabel("PlaceHolderName(IP:PORT)");
 		labelJogador4.setFont(new Font("Arial", Font.PLAIN, 14));
 		painelSelecaoPecasVermelha.add(labelJogador4);
 		
@@ -363,8 +371,185 @@ public class PainelHubPartida implements Painel{
 		
 	}
 	
+	private class ListenerTrocaTime implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			int qualJogadorEuEra = qualJogadorSou;
+			
+			Usuario j1 = partida.getJ1();
+			Usuario j2 = partida.getJ2();
+			Usuario j3 = partida.getJ3();
+			Usuario j4 = partida.getJ4();
+			
+			if (j1 == null) {
+				partida.setJ1(euUsuario);
+				qualJogadorSou = 1;
+				
+			} else if (j2 == null) {
+				partida.setJ2(euUsuario);
+				qualJogadorSou = 2;
+				
+			} else if (j3 == null) {
+				partida.setJ3(euUsuario);
+				qualJogadorSou = 3;
+				
+			} else if (j4 == null) {
+				partida.setJ4(euUsuario);
+				qualJogadorSou = 4;
+				
+			} else {
+				return;
+			}
+			
+			trocarPecasEntreJComboBox(qualJogadorSou, qualJogadorEuEra);
+			
+			if      (qualJogadorEuEra == 1) partida.setJ1(null);
+			else if (qualJogadorEuEra == 2) partida.setJ2(null);
+			else if (qualJogadorEuEra == 3) partida.setJ3(null);
+			else    						partida.setJ4(null);
+			
+			ControladorPrincipal.atualizarPartidaParaTodos(partida);
+			
+		}
+		
+		private void trocarPecasEntreJComboBox(int jogadorAtual, int jogadorAntigo) {
+			Peca peca1 = null;
+			Peca peca2 = null;
+			
+			if (jogadorAntigo == 1) {
+				peca1 = (Peca) jogador1Peca1.getSelectedItem();
+				peca2 = (Peca) jogador1Peca2.getSelectedItem();
+				
+			} else if (jogadorAntigo == 2) {
+				peca1 = (Peca) jogador2Peca1.getSelectedItem();
+				peca2 = (Peca) jogador2Peca2.getSelectedItem();
+				
+			} else if (jogadorAntigo == 3) {
+				peca1 = (Peca) jogador3Peca1.getSelectedItem();
+				peca2 = (Peca) jogador3Peca2.getSelectedItem();
+				
+			} else if (jogadorAntigo == 4) {
+				peca1 = (Peca) jogador4Peca1.getSelectedItem();
+				peca2 = (Peca) jogador4Peca2.getSelectedItem();
+			}
+			
+			if (jogadorAtual == 1) {
+				partida.setPecaJ1(peca1, peca2);
+				jogador1Peca1.setSelectedItem(peca1);
+				jogador1Peca2.setSelectedItem(peca2);
+				
+			} else if (jogadorAtual == 2) {
+				partida.setPecaJ2(peca1, peca2);
+				jogador2Peca1.setSelectedItem(peca1);
+				jogador2Peca2.setSelectedItem(peca2);
+				
+			} else if (jogadorAtual == 3) {
+				partida.setPecaJ3(peca1, peca2);
+				jogador3Peca1.setSelectedItem(peca1);
+				jogador3Peca2.setSelectedItem(peca2);
+				
+			} else if (jogadorAtual == 4) {
+				partida.setPecaJ4(peca1, peca2);
+				jogador4Peca1.setSelectedItem(peca1);
+				jogador4Peca2.setSelectedItem(peca2);
+				
+			}
+			
+		}
+		
+	}
+
+	
+	private class ListenerConectar implements ActionListener {
+
+		public ListenerConectar() {
+			// TODO Auto-generated constructor stub
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
 	public void setPartida(Partida p) {
 		partida = p;
+		
+		Usuario j1 = p.getJ1();
+		Usuario j2 = p.getJ2();
+		Usuario j3 = p.getJ3();
+		Usuario j4 = p.getJ4();
+		
+		if (j1 != null) labelJogador1.setText(Usuario.staticToString(j1.getUsuario(), j1.getIP(), j1.getIP()));
+		else 			labelJogador1.setText("J1 não está presente nesta partida");
+		
+		if (j2 != null) labelJogador2.setText(Usuario.staticToString(j2.getUsuario(), j2.getIP(), j2.getIP()));
+		else  			labelJogador2.setText("J2 não está presente nesta partida");
+		
+		if (j3 != null) labelJogador3.setText(Usuario.staticToString(j3.getUsuario(), j3.getIP(), j3.getIP()));
+		else 			labelJogador3.setText("J3 não está presente nesta partida");
+		
+		if (j4 != null) labelJogador4.setText(Usuario.staticToString(j4.getUsuario(), j4.getIP(), j4.getIP()));
+		else 			labelJogador4.setText("J4 não está presente nesta partida");
+		
+		trancaEscolhasDePeca();
+		
+		painel.repaint();
+	}
+	
+	private void trancaEscolhasDePeca() {
+		boolean souJ1 = euUsuario.equals(partida.getJ1());
+		boolean souJ2 = euUsuario.equals(partida.getJ2());
+		boolean souJ3 = euUsuario.equals(partida.getJ3());
+		boolean souJ4 = euUsuario.equals(partida.getJ4());
+		
+		if (souJ1 == false) {
+			jogador1Peca1.setEnabled(false);
+			jogador1Peca2.setEnabled(false);
+			
+			jogador1Peca1.setSelectedItem(partida.getCasteloInimigo().getPeca1J1());
+			jogador1Peca2.setSelectedItem(partida.getCasteloInimigo().getPeca2J1());
+		} else {
+			jogador1Peca1.setEnabled(true);
+			jogador1Peca2.setEnabled(true);
+		}
+		
+		if (souJ2 == false) {
+			jogador2Peca1.setEnabled(false);
+			jogador2Peca2.setEnabled(false);
+			
+			jogador2Peca1.setSelectedItem(partida.getCasteloAliado().getPeca1J1());
+			jogador2Peca2.setSelectedItem(partida.getCasteloAliado().getPeca2J1());
+		} else {
+			jogador2Peca1.setEnabled(true);
+			jogador2Peca2.setEnabled(true);
+		}
+		
+		if (souJ3 == false) {
+			jogador3Peca1.setEnabled(false);
+			jogador3Peca2.setEnabled(false);
+			
+			jogador3Peca1.setSelectedItem(partida.getCasteloInimigo().getPeca1J2());
+			jogador3Peca2.setSelectedItem(partida.getCasteloInimigo().getPeca2J2());
+		} else {
+			jogador3Peca1.setEnabled(true);
+			jogador3Peca2.setEnabled(true);
+		}
+		
+		if (souJ4 == false) {
+			jogador4Peca1.setEnabled(false);
+			jogador4Peca2.setEnabled(false);
+			
+			jogador4Peca1.setSelectedItem(partida.getCasteloAliado().getPeca1J2());
+			jogador4Peca2.setSelectedItem(partida.getCasteloAliado().getPeca2J2());
+		} else {
+			jogador4Peca1.setEnabled(true);
+			jogador4Peca2.setEnabled(true);
+		}
 	}
 
 	@Override
