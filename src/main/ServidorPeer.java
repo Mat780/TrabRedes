@@ -5,30 +5,42 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 
-public class ServidorPeer {
+public class ServidorPeer extends Thread{
 
 	private ServerSocket serverSocket;
+	private Usuario usuario;
 	private int port;
 	
 	public ServidorPeer(Usuario usuario) throws IOException {
-		serverSocket = new ServerSocket();
+		serverSocket = new ServerSocket(0);
 		port = serverSocket.getLocalPort();
-		serverListen(usuario);
+		this.usuario = usuario;
+		this.usuario.setIP(getIp());
+		this.usuario.setPort(getPort());
 	}
 	
-	private void serverListen(Usuario usuario) throws IOException {
+	@Override
+	public void run() {
 		
 		while(true) {
-			Socket socket = serverSocket.accept();
-			
-			ThreadServerPeer serverPeer = new ThreadServerPeer(socket, usuario);
-			serverPeer.start();	
-		}
+			try {
+				Socket socket = serverSocket.accept();
+				
+				ThreadServerPeer serverPeer = new ThreadServerPeer(socket, usuario);
+				serverPeer.start();	
+			} catch (IOException e) {
+				continue;
+			}
+		}			
 		
 	}
 	
-	public int getPort() {
-		return port;
+	public String getPort() {
+		return Integer.toString(port);
+	}
+	
+	public String getIp() {
+		return serverSocket.getInetAddress().getHostAddress().toString().split("/")[0];
 	}
 	
 }

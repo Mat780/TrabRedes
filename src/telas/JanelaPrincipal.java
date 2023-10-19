@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
+import controladoras.ControladorPrincipal;
 import main.Cliente;
 import main.ClientePeer;
 import main.Partida;
@@ -32,11 +33,11 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 	private JMenuItem menuItemOnline;
 	private JMenuItem menuItemJogando;
 	
-	private Usuario usuario;
-	private Cliente cliente;
-	
 	private ClientePeer clientePeer;
 	private ServidorPeer servidorPeer;
+	
+	private Usuario usuario;
+	private Cliente cliente;
 	
 	private boolean isJogando = false;
 	
@@ -53,15 +54,6 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		this.usuario = user;
 		this.cliente = cliente;
 				
-		try {
-			this.clientePeer = new ClientePeer();
-			this.servidorPeer = new ServidorPeer(usuario);
-			cliente.updatePort(Integer.toString(servidorPeer.getPort()));
-			
-		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
 		configuraTelas();
 		
 		painelAtual = vetorPainel.get(0);
@@ -103,7 +95,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				clientePeer.encerrarTodasAsConexoes();
+				ControladorPrincipal.clientePeer.encerrarTodasAsConexoes();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -141,9 +133,6 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		setVisible(true);
 	}
 
-	public void cancelarPartida() throws IOException {
-		clientePeer.encerrarTodasAsConexoes();
-	}
 	
 	public void retornaPainelOnline() {
 		isJogando = false;
@@ -162,13 +151,13 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelHubPartida) {
 				PainelHubPartida hub = (PainelHubPartida) vetorPainel.get(i);
-				clientePeer.atualizarPartida(partida);
+				ControladorPrincipal.clientePeer.atualizarPartida(partida);
 				hub.setPartida(partida);
 			}
 		}
 	}
 	
-	public void atualizarPartidaParaMim(Partida partida) throws IOException {
+	public void atualizarPartidaParaMim(Partida partida) {
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelHubPartida) {
 				PainelHubPartida hub = (PainelHubPartida) vetorPainel.get(i);
@@ -190,11 +179,11 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 	public void windowClosing(WindowEvent e) {
 		try {
 			if (isJogando) {
-				clientePeer.cancelarPartida();
+				ControladorPrincipal.clientePeer.cancelarPartida();
 			}
 					
 			cliente.encerrarConexao();
-			clientePeer.encerrarTodasAsConexoes();
+			ControladorPrincipal.clientePeer.encerrarTodasAsConexoes();
 			
 		} catch (IOException | ClassNotFoundException e1) {
 			e1.printStackTrace();
@@ -227,6 +216,14 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 	public void windowDeactivated(WindowEvent e) {
 		// Vazio
 		
+	}
+	
+	public ServidorPeer getServidorPeer() {
+		return servidorPeer;
+	}
+	
+	public ClientePeer getClientePeer() {
+		return clientePeer;
 	}
 	
 }

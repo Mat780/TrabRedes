@@ -1,5 +1,6 @@
 package main;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -69,6 +70,11 @@ public class ThreadSockets extends Thread {
 						ArrayList<Partida> listaPartidas = IDsESenhas.listJogando();
 						saida.writeObject(listaPartidas);
 						
+					} else if (protocolo.equals(Protocolos.UPDATE_IP.name())) {
+						String ip = (String) entrada.readObject();
+						IDsESenhas.updateIp(usuarioAtual.getUsuario(), ip);
+						saida.writeObject("Ok");
+						
 					} else if (protocolo.equals(Protocolos.UPDATE_PORT.name())) {
 						String port = (String) entrada.readObject();
 						IDsESenhas.updatePort(usuarioAtual.getUsuario(), port);
@@ -93,7 +99,12 @@ public class ThreadSockets extends Thread {
 					} else if (protocolo.equals(Protocolos.DISCONNECT.name())) {
 						online = false;
 						
-						if (usuarioAtual != null) IDsESenhas.disconnect(usuarioAtual.getUsuario(), false);
+						if (usuarioAtual != null) {
+							IDsESenhas.disconnect(usuarioAtual.getUsuario(), false);
+							
+						} else {
+							System.out.println("Alguma coisa tá errada");
+						}
 						
 						saida.writeObject("Ok");
 						
@@ -119,19 +130,22 @@ public class ThreadSockets extends Thread {
 					
 					
 			} catch (SocketTimeoutException e) {
-				try {
-					IDsESenhas.disconnect(usuarioAtual.getUsuario(), true);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+				
+				IDsESenhas.disconnect(usuarioAtual.getUsuario(), true);
+				online = false;
+				
+			} catch(EOFException e) {
+				IDsESenhas.disconnect(usuarioAtual.getUsuario(), false);
 				online = false;
 				
 			} catch (SocketException e) {
 				// Quando o cliente fecha a aplicação dele ele solta um connection reset
 				// Portanto coloquei um if para caso não seja isso, ele avise de possiveis problemas
-				if (e.getMessage().equals("Connection reset") == false) {
+				if (e.getMessage().equals("Connection reset")) {
 					e.printStackTrace();
 				}
+				
+				IDsESenhas.disconnect(usuarioAtual.getUsuario(), false);
 				online = false;
 				
 			} catch (Exception e) {

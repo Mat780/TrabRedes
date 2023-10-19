@@ -91,10 +91,24 @@ public class Cliente {
 		return (ArrayList<Partida>) entrada.readObject();
 	}
 	
-	public void updatePort(String port) throws IOException, ClassNotFoundException {
+	public void updateIp(String ip) throws IOException {
+		saida.writeObject(Protocolos.UPDATE_IP.name());
+		saida.writeObject(ip);
+		try {
+			entrada.readObject();
+		} catch (ClassNotFoundException e) {
+			// Nunca deveria acontecer
+		} 
+	}
+	
+	public void updatePort(String port) throws IOException {
 		saida.writeObject(Protocolos.UPDATE_PORT.name());
 		saida.writeObject(port);
-		entrada.readObject();
+		try {
+			entrada.readObject();			
+		} catch (ClassNotFoundException e) {
+			// Nunca deveria acontecer
+		}
 	}
 	
 	public void entrandoNoHub(Partida pAntiga, Partida pNova) throws IOException, ClassNotFoundException {

@@ -6,6 +6,7 @@ public enum Protocolos {
 	DISCONNECT, 		// Somente Cliente/Servidor
 	LIST_USER_ON_LINE,  // Somente Cliente/Servidor
 	LIST_USER_PLAYING,  // Somente Cliente/Servidor
+	UPDATE_IP,			// Somente Cliente/Servidor
 	UPDATE_PORT, 		// Somente Cliente/Servidor
 	GAME_HUB,			// Somente Cliente/Servidor
 	GET_QTD_CADASTRADOS,// Somente Cliente/Servidor

@@ -19,6 +19,9 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import java.awt.Color;
 import javax.swing.border.EmptyBorder;
+
+import controladoras.ControladorPrincipal;
+
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.Popup;
@@ -59,8 +62,17 @@ public class PainelListagemOnline implements Painel {
 		botaoConectar = new JButton("Conectar");
 		botaoConectar.setFont(new Font("Arial", Font.PLAIN, 18));
 		botaoConectar.addActionListener(e -> {
-			//TODO Fazer conexão com outro jogador
 			
+			if (listaNoPainel.getSelectedIndex() == -1) {
+				JOptionPane.showMessageDialog(null, "Primeiro selecione um jogador", "Erro: Nenhum jogador selecionado", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			Usuario usr = listaNoPainel.getSelectedValue();
+			
+			boolean conexaoPossivel = ControladorPrincipal.conectarPeerToPeer(usr);
+			
+			if (conexaoPossivel == false) return;
 			
 			JOptionPane.showMessageDialog(null, "Aguardando a resposta do jogador...", "Requisição de jogo", JOptionPane.PLAIN_MESSAGE);
 		});

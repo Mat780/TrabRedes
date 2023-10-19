@@ -74,19 +74,30 @@ public class IDsESenhas {
 		else return senhaIncorreta;
 	}
 	
+	public static synchronized void updateIp(String usuario, String ip) {
+		String[] infoUsr = jogadoresOnline.get(usuario);
+		infoUsr[2] = ip;
+		jogadoresOnline.put(usuario, infoUsr);
+	}
+	
 	public static synchronized void updatePort(String usuario, String port) {
 		String[] infoUsr = jogadoresOnline.get(usuario);
 		infoUsr[3] = port;
 		jogadoresOnline.put(usuario, infoUsr);
 	}
 
-	public static synchronized void disconnect(String usuario, boolean isDead) throws IOException {
+	public static synchronized void disconnect(String usuario, boolean isDead) {
 		
 		String[] infoUsr = jogadoresOnline.get(usuario);
 		if(infoUsr == null) infoUsr = jogadoresJogando.get(usuario);
 		
-		if(isDead) makeLog("Usuario " + Usuario.staticToString(usuario, infoUsr[2], infoUsr[3]) + " não responde");
-		else makeLog("Usuario " + Usuario.staticToString(usuario, infoUsr[2], infoUsr[3]) + " desconectou-se da rede");
+		try {
+			if(isDead) makeLog("Usuario " + usuario.toString() + " não responde");
+			else makeLog("Usuario " + usuario.toString() + " desconectou-se da rede");	
+			
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 		
 		jogadoresOnline.remove(usuario);
 		jogadoresJogando.remove(usuario);

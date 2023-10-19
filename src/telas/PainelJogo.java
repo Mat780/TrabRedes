@@ -1210,6 +1210,14 @@ public class PainelJogo implements Painel {
 	public void setPartida(Partida p) {
 		this.partida = p;
 	}
+	
+	public void resetarPartida() {
+		moedasRestantes = 3;
+		imgMoeda1.setIcon(moedaCheia);
+		imgMoeda2.setIcon(moedaCheia);
+		imgMoeda3.setIcon(moedaCheia);
+		
+	}
 
 	@Override
 	public void limparCampos() {
