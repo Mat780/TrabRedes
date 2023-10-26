@@ -63,6 +63,10 @@ public class PainelListagemOnline implements Painel {
 		botaoConectar.setFont(new Font("Arial", Font.PLAIN, 18));
 		botaoConectar.addActionListener(e -> {
 			
+			JOptionPane.showMessageDialog(null, "Iniciando requisicao com o jogador", "Requisição de jogo", JOptionPane.PLAIN_MESSAGE);
+			
+			//TODO Travar tudo
+			
 			if (listaNoPainel.getSelectedIndex() == -1) {
 				JOptionPane.showMessageDialog(null, "Primeiro selecione um jogador", "Erro: Nenhum jogador selecionado", JOptionPane.ERROR_MESSAGE);
 				return;
@@ -71,10 +75,19 @@ public class PainelListagemOnline implements Painel {
 			Usuario usr = listaNoPainel.getSelectedValue();
 			
 			boolean conexaoPossivel = ControladorPrincipal.conectarPeerToPeer(usr);
+			if (conexaoPossivel == false) return; //TODO Destravar tudo
 			
-			if (conexaoPossivel == false) return;
+			boolean partidaAceita = ControladorPrincipal.convidarPartida();
 			
-			JOptionPane.showMessageDialog(null, "Aguardando a resposta do jogador...", "Requisição de jogo", JOptionPane.PLAIN_MESSAGE);
+			if (partidaAceita) {
+				JOptionPane.showMessageDialog(null, "Jogador aceitou a partida", "Partida aceita", JOptionPane.INFORMATION_MESSAGE);
+				ControladorPrincipal.criarHub(false, usr);
+				
+			} else {
+				JOptionPane.showMessageDialog(null, "Jogador recusou sua partida", "Partida recusada", JOptionPane.INFORMATION_MESSAGE);
+				ControladorPrincipal.encerrarTodasAsConexoes();
+			}
+			
 		});
 		
 		painelBotoes.add(botaoConectar);
@@ -130,7 +143,7 @@ public class PainelListagemOnline implements Painel {
 	}
 	
 	public void atualizarLista(){
-		listaUsuarios.removeAllElements();
+		listaUsuarios.clear();
 		
 		try {
 			listaUsuarios.addAll(cliente.listarOnline());

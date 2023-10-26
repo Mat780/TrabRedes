@@ -1,9 +1,11 @@
 package main;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 import javax.swing.JOptionPane;
 
@@ -12,14 +14,13 @@ import controladoras.ControladorPrincipal;
 public class ThreadServerPeer extends Thread {
 	
 	private Socket socket;
-	private Usuario host;
+	private Partida partida;
 	private ObjectInputStream  entrada;
 	private ObjectOutputStream saida;
 	private boolean rodando;
 	
 	public ThreadServerPeer(Socket socket, Usuario host) {
 		this.socket = socket;
-		this.host = host;
 	}
 	
 	@Override
@@ -33,12 +34,25 @@ public class ThreadServerPeer extends Thread {
 				tratarConexao(protocolo);
 			}
 			
-			socket.close();
+			fecharConexao();
 			
+		} catch (EOFException | SocketException e) {
+			ControladorPrincipal.cancelarPartida();
+			fecharConexao();
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		
+		fecharConexao();
+		
+	}
+	
+	private void fecharConexao() {
+		try {
+			if (socket.isClosed() == false) socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void tratarConexao(String protocolo) throws ClassNotFoundException, IOException {
@@ -46,7 +60,7 @@ public class ThreadServerPeer extends Thread {
 			
 			Usuario j = (Usuario) entrada.readObject();
 			
-			String aux = Usuario.staticToString(j.getUsuario(), j.getIP(), j.getPort());
+			String aux = j.toString();
 			
 			String[] opcoes = {"Sim", "Não"};
 			
@@ -55,13 +69,7 @@ public class ThreadServerPeer extends Thread {
 			
 			if (opcao == 0) {
 				saida.writeObject(Protocolos.GAME_ACK.name());
-				
-				saida.writeObject(host);
-				Usuario usr = (Usuario) entrada.readObject();
-				
-				Partida partida = new Partida(usr, host);
-				
-				//TODO Iniciar novo jogo com a partida criada
+				ControladorPrincipal.criarHub(true, j);
 				
 			} else {
 				saida.writeObject(Protocolos.GAME_NEG.name());
@@ -69,16 +77,72 @@ public class ThreadServerPeer extends Thread {
 			}
 			
 		} else if (protocolo.equals(Protocolos.GAME_ENTER.name())) {
-			Partida partida = (Partida) entrada.readObject();
-			ControladorPrincipal.atualizarPartidaParaTodos(partida);
+			InfoPartida partida = (InfoPartida) entrada.readObject();
+			ControladorPrincipal.entrarNoHubExistente(partida);
 			
-		} else if (protocolo.equals(Protocolos.GAME_UPDATE.name())) {
-			Partida partida = (Partida) entrada.readObject();
-			ControladorPrincipal.atualizarPartidaMim(partida);
+		} else if (protocolo.equals(Protocolos.UPDATE_PECA.name())) {
+			int jogador = (int) entrada.readObject();
+			saida.writeObject(Protocolos.OK.name());
+			int index1 = (int) entrada.readObject();
+			saida.writeObject(Protocolos.OK.name());
+			int index2 = (int) entrada.readObject();
+			saida.writeObject(Protocolos.OK.name());
+			
+			ControladorPrincipal.atualizarHubPeca(jogador, index1, index2);
+			
+		} else if (protocolo.equals(Protocolos.JOGADA.name())) {
+			int energiaEsq;
+			int expEsq;
+			int energiaDir;
+			int expDir;
+			int muro;
+			int qualJogadorSou;
+			
+			saida.writeObject(Protocolos.OK.name());
+			
+			energiaEsq = (int) entrada.readObject();
+			saida.writeObject(Protocolos.OK.name());
+			
+			expEsq = (int) entrada.readObject();
+			saida.writeObject(Protocolos.OK.name());
+			
+			energiaDir = (int) entrada.readObject();
+			saida.writeObject(Protocolos.OK.name());
+			
+			expDir = (int) entrada.readObject();
+			saida.writeObject(Protocolos.OK.name());
+			
+			muro = (int) entrada.readObject();
+			saida.writeObject(Protocolos.OK.name());
+			
+			qualJogadorSou = (int) entrada.readObject();
+			saida.writeObject(Protocolos.OK.name());
+			
+			ControladorPrincipal.receberJogada(energiaEsq, expEsq, energiaDir, expDir, muro, qualJogadorSou);
+			
+		} else if (protocolo.equals(Protocolos.UPDATE_PRONTO.name())) {
+			boolean pronto = (boolean) entrada.readObject();
+			int qualJogadorSou = (int) entrada.readObject();
+			ControladorPrincipal.atualizarPronto(pronto, qualJogadorSou);
+			
+		} else if (protocolo.equals(Protocolos.GAME_START.name())) {
+			int jogadores = (int) entrada.readObject();
+			ControladorPrincipal.iniciarPartida(false, jogadores);
+			
+		} else if (protocolo.equals(Protocolos.GAME_START_PECA.name())) {
+			int qualJogadorSou = (int) entrada.readObject();
+			saida.writeObject("Ok");
+			int indexPeca1 = (int) entrada.readObject();
+			saida.writeObject("Ok");
+			int indexPeca2 = (int) entrada.readObject();
+			saida.writeObject("Ok");
+			int qtdJogadores = (int) entrada.readObject();
+			
+			ControladorPrincipal.atualizarPartidaPeca(qualJogadorSou, indexPeca1, indexPeca2, qtdJogadores);
 			
 		} else if (protocolo.equals(Protocolos.GAME_OVER.name())) {
-			ControladorPrincipal.cancelarPartida();
 			saida.writeObject("Ok");
+			ControladorPrincipal.finalizarPartida();
 			rodando = false;
 			
 		} else if (protocolo.equals(Protocolos.STAY_ALIVE.name()) == false) {

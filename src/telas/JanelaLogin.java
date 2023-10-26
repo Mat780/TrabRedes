@@ -191,7 +191,6 @@ public class JanelaLogin extends JFrame {
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[0]);
 				
 				if (retornarAoLogin == 0) {
-					JOptionPane.showMessageDialog(null, "Cadastro realizado com sucesso");
 					trocarEntreLoginERegistro();
 				}
 				
@@ -209,6 +208,7 @@ public class JanelaLogin extends JFrame {
 				JOptionPane.showMessageDialog(null, "Algum usuário já utiliza o nome de usuário escolhido");
 				
 			} else {
+				JOptionPane.showMessageDialog(null, "Cadastro realizado com sucesso");
 				trocarEntreLoginERegistro();
 			}	
 			

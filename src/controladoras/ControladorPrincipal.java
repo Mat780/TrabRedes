@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 
 import main.Cliente;
 import main.ClientePeer;
+import main.InfoPartida;
 import main.Partida;
 import main.ServidorPeer;
 import main.Usuario;
@@ -20,8 +21,9 @@ public class ControladorPrincipal {
 	private static JanelaPrincipal janela;
 	private static JanelaLogin janelaLogin;
 	
-	public static ClientePeer clientePeer;
-	public static ServidorPeer servidorPeer;
+	private static ClientePeer clientePeer;
+	private static ServidorPeer servidorPeer;
+	private static Cliente clienteServer;
 	
 	private static Usuario usr;
 	
@@ -48,7 +50,8 @@ public class ControladorPrincipal {
 				
 				cliente.updateIp(servidorPeer.getIp());
 				cliente.updatePort(servidorPeer.getPort());
-
+				clienteServer = cliente;
+				
 				usr.setIP(servidorPeer.getIp());
 				usr.setPort(servidorPeer.getPort());
 				
@@ -56,7 +59,7 @@ public class ControladorPrincipal {
 				e.printStackTrace();
 			}
 
-			janela = new JanelaPrincipal(usr, cliente);
+			janela = new JanelaPrincipal(cliente);
 			entradas[1] = true;
 			
 		} else {
@@ -66,8 +69,7 @@ public class ControladorPrincipal {
 	}
 	
 	public static boolean conectarPeerToPeer(Usuario usuario) {
-		System.out.println("IP: " + usr.getIP() + ":" + usr.getPort());
-		System.out.println("IP: " + usuario.getIP() + ":" + usuario.getPort());
+		
 		if (usr.getIP().equals(usuario.getIP()) && usr.getPort().equals(usuario.getPort())) {
 			JOptionPane.showMessageDialog(null, "Você não pode conectar-se consigo mesmo", "Erro: Conexão com si mesmo", JOptionPane.ERROR_MESSAGE);
 			return false;
@@ -76,65 +78,160 @@ public class ControladorPrincipal {
 		return clientePeer.adicionarConexao(usuario);
 	}
 	
+	public static boolean convidarPartida() {
+		return clientePeer.convidarPartida(usr);
+		
+	}
+	
 	public static void criarHub(boolean convidado, Usuario rival) {
 		
-		Partida partida;
+		int qualJogadorSou = 1;
 		
 		if (convidado) {
-			partida = new Partida(rival, usr);
-			
+			qualJogadorSou = 2;
+			clientePeer.adicionarConexao(rival);	
+			clienteServer.entreiEmUmHub();
+			entrarNoHub(rival, usr, qualJogadorSou);
+		
 		} else {
-			partida = new Partida(usr, rival);
+			clienteServer.criarHub(new InfoPartida(usr, rival));
+			entrarNoHub(usr, rival, qualJogadorSou);
 		}
-		
-		atualizarPartidaMim(partida);
+	
 	}
 	
-	public static void atualizarInfoCastelo(Partida partida) {
-		ArrayList<Painel> vetorPainel = janela.getVetorPainel();
-		
-		for (int i = 0; i < vetorPainel.size(); i++) {
-			if (vetorPainel.get(i) instanceof PainelJogo) {
-				PainelJogo painelJogo = (PainelJogo) vetorPainel.get(i);
-				painelJogo.atualizarInfoCastelo(partida);
-			}
-		}
-	}
-	
-	public static void atualizarPartidaParaTodos(Partida partida) {
+	public static void iniciarPartida(boolean first, int qtdJogadores) {
 		try {
-			janela.atualizarPartidaParaTodos(partida);			
+			
+			int[] info = janela.getInfoStartPartida();
+			InfoPartida partida = janela.getInfoPartida(); 
+			
+			if (first) {
+				clientePeer.iniciarPartida(qtdJogadores);
+				clienteServer.startJogo(partida);
+			}
+			
+			atualizarPartidaPeca(info[0], info[1], info[2], qtdJogadores);
+			clientePeer.mostrarMinhaPeca(info[0], info[1], info[2], qtdJogadores);
+		
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public static void atualizarPronto(boolean pronto, int qualJogadorSou) {
+		janela.atualizarPronto(pronto, qualJogadorSou);
+	}
+	
+	public static void atualizarHubPecaParaTodos(int jogador, int indexPeca1, int indexPeca2) {
+		try {
+			clientePeer.atualizarPecas(jogador, indexPeca1, indexPeca2);
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public static void atualizarHubPeca(int jogador, int indexPeca1, int indexPeca2) {
+		janela.atualizarPecas(jogador, indexPeca1, indexPeca2);
+	}
+	
+	public static void atualizarPartidaPeca(int jogador, int indexPeca1, int indexPeca2, int qtdJogadores) {
+		janela.iniciarPecaDaPartida(jogador, indexPeca1, indexPeca2, qtdJogadores);
+	}
+	
+	public static void entrarNoHub(Usuario usuario, Usuario rival, int qualJogadorSou) {
+		janela.setQualJogadorSou(qualJogadorSou);
+		janela.criarHubPartida(usuario, rival);
+	}
+	
+	public static void entrarNoHubExistente(InfoPartida partida) {
+		// TODO Para quatro jogadores
+		
+	}
+	
+	public static void enviarPronto(boolean pronto, int qualJogadorSou) {
+		try {
+			clientePeer.enviarPronto(pronto, qualJogadorSou);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void atualizarPartidaMim(Partida partida) {
-		janela.atualizarPartidaParaMim(partida);			
-		
+	public static void receberPronto(boolean pronto, int qualJogadorSou) {
+		janela.receberPronto(pronto, qualJogadorSou);
 	}
 	
+	public static void enviarJogada(int energiaEsq, int expEsq, int energiaDir, int expDir, int muro, int qualJogadorSou) {
+		try {
+			clientePeer.enviarJogada(energiaEsq, expEsq, energiaDir, expDir, muro, qualJogadorSou);
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void receberJogada(int energiaEsq, int expEsq, int energiaDir, int expDir, int muro, int qualJogadorSou) {
+		janela.receberJogada(energiaEsq, expEsq, energiaDir, expDir, muro, qualJogadorSou);
+	}
+	
+	public static void finalizarPartida() {
+		retornaPainelOnline();
+	}
 	
 	public static void cancelarPartida() {
-		
+		clientePeer.cancelarPartida();
+			
+		retornaPainelOnline();
+	}
+	
+	public static void encerrarTodasAsConexoes() {
+		clientePeer.encerrarTodasAsConexoes();
+	}
+	
+	public static void retornaPainelOnline() {
 		try {
 			clientePeer.encerrarTodasAsConexoes();
-			
-		} catch (IOException e) {
-			// É possivel de acontecer, mas não é um erro
-			e.printStackTrace(); // Debug
-		}
-		
+			clienteServer.ficarInativo();
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		} 
+		janela.setTitle("");
 		janela.retornaPainelOnline();
-		
+	}
+	
+	public static void mensagemDeAtaqueVida(String peca, String jogador, int dano) {
+		String msg = peca + " do jogador " + jogador;
+		msg = msg +  " deu " + dano + " de dano no rei adversario";
+		JOptionPane.showMessageDialog(janela, msg);
+	}
+	
+	public static void mensagemDeAtaqueMuro(String peca, String jogador, int dano) {
+		String msg = peca + " do jogador " + jogador;
+		msg = msg +  " deu " + dano + " de dano no muro adversario";
+		JOptionPane.showMessageDialog(janela, msg);
+	}
+	
+	public static void mensagemDeSubirDeNivel(String peca, String jogador) {
+		String msg = peca + " do jogador " + jogador;
+		msg = msg + " subiu de nivel!";
+		JOptionPane.showMessageDialog(janela, msg);
+	}
+	
+	public static void mensagemDeBomba(String peca, String jogador) {
+		String msg = peca + " do jogador " + jogador;
+		msg = msg + " jogou uma bomba no rei adversario";
+		JOptionPane.showMessageDialog(janela, msg);
 	}
 	
 	public static void trocaPainel(Painel painel) {
 		janela.trocaPainel(painel);
 	}
 	
+	public static void trocaTitulo(String msg) {
+		janela.setTitle(msg);
+	}
+	
 	public static void conexaoMorreu() {
 		JOptionPane.showMessageDialog(null, "A conexão com algum jogador foi interrompida", "Erro: Conexão morreu", JOptionPane.ERROR_MESSAGE);
-
 	}
+	
 }

@@ -21,6 +21,9 @@ public class ClientePeer {
 	private ArrayList<ObjectOutputStream> vetorSaida;
 	private ArrayList<Timer> vetorTimers;
 	
+	private boolean isJogando = false;
+	private boolean enviandoMsg = false;
+	
 	public ClientePeer() {
 		vetorUsuarios = new ArrayList<>();
 		vetorSockets  = new ArrayList<>();
@@ -29,7 +32,11 @@ public class ClientePeer {
 		vetorTimers   = new ArrayList<>();
 	}
 	
-	public void convidarPartida() {
+	public boolean convidarPartida(Usuario euUsuario) {
+		enviandoMsg = true;
+		
+		boolean vamoJogar = false;
+		
 		if(vetorSockets.size() != 1) {
 			System.err.println("Ao convidar para uma partida foi detectado que o cliente, estava se comunicando com mais de um usuário");
 			throw new IllegalAccessError();
@@ -37,15 +44,15 @@ public class ClientePeer {
 		
 		try {
 			vetorSaida.get(0).writeObject(Protocolos.GAME_INI.name());
+			vetorSaida.get(0).writeObject(euUsuario);
 			
 			String resposta = (String) vetorEntrada.get(0).readObject();
 			
 			if (resposta.equals(Protocolos.GAME_ACK.name())) {
-				Usuario rival = (Usuario) vetorEntrada.get(0).readObject();
-				ControladorPrincipal.criarHub(false, rival);
+				vamoJogar = true;
 				
 			} else if (resposta.equals(Protocolos.GAME_NEG.name())){
-				JOptionPane.showMessageDialog(null, "Jogador recusou sua partida", "Partida recusada", JOptionPane.INFORMATION_MESSAGE);
+				vamoJogar = false;
 				
 			} else {
 				throw new IllegalAccessError("Resposta de convite a partida não identificado");
@@ -53,80 +60,145 @@ public class ClientePeer {
 			
 		} catch (IOException e) {
 			ControladorPrincipal.conexaoMorreu();
+			return false;
 		} catch (ClassNotFoundException e) {
 			// Não deveria acontecer
 			e.printStackTrace();
 		}
+		
+		enviandoMsg = false;
+		return vamoJogar;
 	}
 	
-	// Serve para que no hub possa alternar entre times
-	public void atualizarPartida(Partida partida) throws IOException {
-		for (int i = 0; i < vetorSockets.size(); i++) {
-			vetorSaida.get(i).writeObject(Protocolos.GAME_UPDATE.name());
-			vetorSaida.get(i).writeObject(partida);
-		}
-	}
-	
-	// Serve para finalizar uma partida antecipadamente
-	public void cancelarPartida() throws IOException, ClassNotFoundException {
+	public void finalizarPartida() throws IOException, ClassNotFoundException {
+		enviandoMsg = true;
+		isJogando = false;
 		for (int i = 0; i < vetorSockets.size(); i++) {
 			vetorSaida.get(i).writeObject(Protocolos.GAME_OVER.name());
 			vetorEntrada.get(i).readObject(); // Segurança 
 		}
+		enviandoMsg = false;
 	}
 	
-	public void atualizarJogo(Partida partida) throws IOException {
+	public void cancelarPartida() {
+		enviandoMsg = true;
+		isJogando = false;
+		
+		encerrarTodasAsConexoes();		
+		
+		enviandoMsg = false;
+		JOptionPane.showMessageDialog(null, "Algum dos jogadores acabou perdendo a conexao, não será possivel continuar a partida", "Erro: Perda de conexao", JOptionPane.ERROR_MESSAGE);
+	}
+	
+	public void enviarJogada(int energiaEsq, int expEsq, int energiaDir, int expDir, int muro, int qualJogadorSou) throws IOException, ClassNotFoundException {
+		enviandoMsg = true;
 		for (int i = 0; i < vetorSockets.size(); i++) {
-			vetorSaida.get(i).writeObject(partida);
-			ControladorPrincipal.atualizarInfoCastelo(partida);
+			vetorSaida.get(i).writeObject(Protocolos.JOGADA.name()); 
+			vetorEntrada.get(i).readObject();
+			
+			vetorSaida.get(i).writeObject(energiaEsq);
+			vetorEntrada.get(i).readObject();
+			
+			vetorSaida.get(i).writeObject(expEsq);
+			vetorEntrada.get(i).readObject();
+			
+			vetorSaida.get(i).writeObject(energiaDir);
+			vetorEntrada.get(i).readObject();
+			
+			vetorSaida.get(i).writeObject(expDir);
+			vetorEntrada.get(i).readObject();
+			
+			vetorSaida.get(i).writeObject(muro);
+			vetorEntrada.get(i).readObject();
+			
+			vetorSaida.get(i).writeObject(qualJogadorSou);
+			vetorEntrada.get(i).readObject();
 		}
+		enviandoMsg = false;
+	}
+	
+	public void enviarPronto(boolean pronto, int qualJogadorSou) throws IOException {
+		enviandoMsg = true;
+		for (int i = 0; i < vetorSockets.size(); i++) {
+			vetorSaida.get(i).writeObject(Protocolos.UPDATE_PRONTO.name());
+			vetorSaida.get(i).writeObject(pronto);
+			vetorSaida.get(i).writeObject(qualJogadorSou);
+		}
+		enviandoMsg = false;
+	}
+	
+	public void atualizarPecas(int jogador, int indexPeca1, int indexPeca2) throws IOException, ClassNotFoundException {
+		enviandoMsg = true;
+		for (int i = 0; i < vetorSockets.size(); i++) {
+			vetorSaida.get(i).writeObject(Protocolos.UPDATE_PECA.name());
+			vetorSaida.get(i).writeObject(jogador);
+			vetorEntrada.get(i).readObject();
+			vetorSaida.get(i).writeObject(indexPeca1);
+			vetorEntrada.get(i).readObject();
+			vetorSaida.get(i).writeObject(indexPeca2);
+			vetorEntrada.get(i).readObject();
+		}
+		enviandoMsg = false;
+	}
+	
+	public void iniciarPartida(int qtdJogadores) throws IOException {
+		enviandoMsg = true;
+		isJogando = true;
+		for (int i = 0; i < vetorSockets.size(); i++) {
+			vetorSaida.get(i).writeObject(Protocolos.GAME_START.name());
+			vetorSaida.get(i).writeObject(qtdJogadores);
+		}
+		enviandoMsg = false;
+	}
+	
+	public void mostrarMinhaPeca(int qualJogadorSou, int indexPeca1, int indexPeca2, int qtdJogadores) throws IOException, ClassNotFoundException {
+		enviandoMsg = true;
+		for (int i = 0; i < vetorSockets.size(); i++) {
+			vetorSaida.get(i).writeObject(Protocolos.GAME_START_PECA.name());
+			vetorSaida.get(i).writeObject(qualJogadorSou);
+			vetorEntrada.get(i).readObject();
+			vetorSaida.get(i).writeObject(indexPeca1);
+			vetorEntrada.get(i).readObject();
+			vetorSaida.get(i).writeObject(indexPeca2);
+			vetorEntrada.get(i).readObject();
+			vetorSaida.get(i).writeObject(qtdJogadores);
+		}
+		enviandoMsg = false;
 	}
 	
 	public boolean adicionarConexao(Usuario usuario) {
 		
 		String ip = usuario.getIP();
 		int port  = Integer.parseInt(usuario.getPort());
-		
-		System.out.println("Comecando adicionarConexao");
+
+		System.out.println("IP: " + ip + ":" + port);
 		
 		try {
 			Socket socket = new Socket(ip, port);
-			vetorSockets.add(socket);
-			
-			int indexSocket = vetorSockets.indexOf(socket);
-			
-			System.out.println("Apos criação socket");
-			
-			ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
+
 			ObjectOutputStream saida = new ObjectOutputStream(socket.getOutputStream());
+			ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
 			
-			System.out.println("Input stream pegos");
-			
+			vetorSockets.add(socket);
 			vetorEntrada.add(entrada);
 			vetorSaida.add(saida);
-			
-			System.out.println("Input stream adicionados ao vetor");
 			
 			Timer timer = new Timer();
 			timer.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
 					try {
-						vetorSaida.get(indexSocket).writeObject(Protocolos.STAY_ALIVE.name());
+						if (enviandoMsg == false)
+							saida.writeObject(Protocolos.STAY_ALIVE.name());
 					} catch (IOException e) {
-						try {
-							encerrarConexao(vetorUsuarios.get(vetorUsuarios.indexOf(usuario)));
-							
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
+						isJogando = false;
+						cancelarPartida();	
+						
 					}
 					
 				}
 			}, 5000, 5000);
-			
-			System.out.println("Timer construido");
-			
+	
 			vetorTimers.add(timer);
 			vetorUsuarios.add(usuario);
 			
@@ -138,10 +210,15 @@ public class ClientePeer {
 		return true;
 	}
 	
-	public void encerrarConexao(Usuario usuario) throws IOException {
+	public void encerrarConexao(Usuario usuario) {
 		int index = vetorUsuarios.indexOf(usuario);
 		vetorTimers.get(index).cancel();
-		vetorSockets.get(index).close();
+		
+		try {
+			vetorSockets.get(index).close();
+		} catch (IOException e) {
+			// Pode acontecer e tá tudo bem
+		}
 		
 		vetorUsuarios.remove(index);
 		vetorTimers.remove(index);
@@ -150,7 +227,7 @@ public class ClientePeer {
 		vetorSaida.remove(index);
 	}
 	
-	public void encerrarTodasAsConexoes() throws IOException {
+	public void encerrarTodasAsConexoes() {
 		for (int i = vetorSockets.size() - 1; i > -1; i--) {
 			encerrarConexao(vetorUsuarios.get(i));
 		}
@@ -161,4 +238,6 @@ public class ClientePeer {
 		vetorEntrada.clear();
 		vetorSaida.clear();
 	}
+	
+	
 }

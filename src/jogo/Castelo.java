@@ -11,6 +11,7 @@ public class Castelo implements Serializable {
 	private Peca peca2J1;
 	private Peca peca1J2 = null;
 	private Peca peca2J2 = null;
+	private boolean quatroJogadores = false;
 	
 	public Castelo(int vida, int muro, Peca peca1, Peca peca2) {
 		setPeca1J1(peca1);
@@ -40,12 +41,22 @@ public class Castelo implements Serializable {
 	}
 	
 	private void setMuro(int muro) {
-		if (muro >= 6) {
-			this.muro = 6;	
+		int muroMaximo = 6;
+		
+		if (quatroJogadores) muroMaximo *= 2;
+		if (muro < 0) muro = 0;
+		
+		if (muro >= muroMaximo) {
+			this.muro = muroMaximo;	
 			
 		} else {
 			this.muro = muro;
 		}
+	}
+	
+	public void modoQuatroJogadores() {
+		quatroJogadores = true;
+		vida = vida * 2;
 	}
 
 	public int getVida() {
@@ -87,10 +98,18 @@ public class Castelo implements Serializable {
 	}
 	
 	public void atacarMuro(int dano) {
-		this.muro = this.muro - dano;
+		setMuro(muro - dano);
 	}
 	
 	public void atacarPontosDeVida(int dano) {
-		this.vida = this.vida - dano;
+		setVida(vida - dano);
+	}
+	
+	
+	//TODO Retirar
+	public boolean verificarPecas() {
+		boolean tudoOk = peca1J1 != null && peca2J1 != null;
+		
+		return tudoOk;
 	}
 }

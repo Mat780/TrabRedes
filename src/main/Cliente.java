@@ -2,10 +2,13 @@ package main;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Timer;
@@ -22,12 +25,15 @@ public class Cliente {
 		
 		String ipServer = null;
 		
-		try (FileReader leitorDoIPDoServer = new FileReader("src/main/config")) {
-			Properties propriedades = new Properties();
-			propriedades.load(leitorDoIPDoServer);
-			ipServer = propriedades.getProperty("SERVER_IP");
-		} catch (Exception e) {
-			e.printStackTrace();
+		Path pathfile = Path.of("logs/config.txt");
+		Properties properties = new Properties();
+		
+		try {
+			properties.load(Files.newBufferedReader(pathfile));
+			ipServer = properties.getProperty("SERVER_IP");
+			
+		} catch (IOException e) {
+			System.err.println("Erro: Arquivo de config.txt não foi encontrado, o programa não executára normalmente sem ele");
 		}
 		
 		clienteSocket = new Socket (ipServer, 55555);
@@ -40,7 +46,6 @@ public class Cliente {
 				try {
 					saida.writeObject(Protocolos.STAY_ALIVE.name());
 				} catch (IOException e) {
-					System.out.println("Erro ao manter conexão com o socket");
 					try {
 						clienteSocket.close();
 					} catch (IOException e1) {
@@ -81,14 +86,16 @@ public class Cliente {
 		return (boolean) entrada.readObject();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ArrayList<Usuario> listarOnline() throws ClassNotFoundException, IOException {
 		saida.writeObject(Protocolos.LIST_USER_ON_LINE.name());
 		return (ArrayList<Usuario>) entrada.readObject();
 	}
 	
-	public ArrayList<Partida> listarJogando() throws ClassNotFoundException, IOException {
+	@SuppressWarnings("unchecked")
+	public ArrayList<InfoPartida> listarJogando() throws ClassNotFoundException, IOException {
 		saida.writeObject(Protocolos.LIST_USER_PLAYING.name());
-		return (ArrayList<Partida>) entrada.readObject();
+		return (ArrayList<InfoPartida>) entrada.readObject();
 	}
 	
 	public void updateIp(String ip) throws IOException {
@@ -111,21 +118,37 @@ public class Cliente {
 		}
 	}
 	
-	public void entrandoNoHub(Partida pAntiga, Partida pNova) throws IOException, ClassNotFoundException {
-		saida.writeObject(Protocolos.GAME_HUB.name());
-		saida.writeObject(pAntiga);
-		saida.writeObject(pNova);
+	public void ficarInativo() throws IOException, ClassNotFoundException {
+		saida.writeObject(Protocolos.VOLTAR_LIST_ONLINE.name());
 		entrada.readObject();
-		
 	}
 	
-	public void startJogo(Partida partida) throws IOException, ClassNotFoundException {
+	public void criarHub(InfoPartida partida) {
+		try {
+			saida.writeObject(Protocolos.GAME_HUB.name());
+			saida.writeObject(partida);
+			entrada.readObject();		
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace(); // Nunca deveria acontecer
+		}
+	}
+	
+	public void entreiEmUmHub() {
+		try {
+			saida.writeObject(Protocolos.GAME_HUB_ENTER.name());
+			entrada.readObject();
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace(); // Nunca deveria acontecer
+		}
+	}
+	
+	public void startJogo(InfoPartida partida) throws IOException, ClassNotFoundException {
 		saida.writeObject(Protocolos.GAME_START.name());
 		saida.writeObject(partida);
 		entrada.readObject();
 	}
 	
-	public void finalizarJogo(Partida partida) throws IOException, ClassNotFoundException {
+	public void finalizarJogo(InfoPartida partida) throws IOException, ClassNotFoundException {
 		saida.writeObject(Protocolos.GAME_OVER.name());
 		saida.writeObject(partida);
 		entrada.readObject();

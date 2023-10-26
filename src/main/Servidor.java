@@ -13,7 +13,6 @@ public class Servidor {
 		IDsESenhas.inicializar();
 		
 		while (true) {
-			System.out.println("Threads ativas: "+ Thread.activeCount());
 			Socket socket = servidorSocket.accept();
 			
 			ThreadSockets thread = new ThreadSockets(socket);

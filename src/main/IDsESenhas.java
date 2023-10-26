@@ -1,7 +1,6 @@
 package main;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -19,12 +18,14 @@ public class IDsESenhas {
 	private static HashMap<String, String[]> jogadoresRegistrados = new HashMap<>();
 	private static HashMap<String, String[]> jogadoresOnline  	  = new HashMap<>();   // INATIVO
 	private static HashMap<String, String[]> jogadoresJogando  	  = new HashMap<>();   // ATIVO
-	private static ArrayList<Partida> partidasEmAndamento         = new ArrayList<>(); // ATIVO
+	private static ArrayList<InfoPartida> partidasEmAndamento     = new ArrayList<>(); // ATIVO
 	
 	private static String filepathLog = "logs/game.log";
 	private static String filepath = "logs/usuarios.txt";
 	
 	private static boolean isInicializado = false;
+	
+	private IDsESenhas() {} // Construtor Inexistente
 	
 	public static synchronized boolean register(String usuario, String senha, String nome, String ip, String port) throws IOException {
 		
@@ -46,8 +47,9 @@ public class IDsESenhas {
 		escritor.append(registro);            
 		escritor.close();
 		
-		String usr = Usuario.staticToString(usuario, ip, port);
-		makeLog("Usuario " + usr + " realizou cadastro");
+		Usuario usr = new Usuario(usuario, senha, nome, ip, port);
+	
+		makeLog("Usuario " + usr.getUsuario() + " realizou cadastro");
 		
 		return true;
 	}
@@ -66,7 +68,8 @@ public class IDsESenhas {
 		
 		if (cadastro[0].equals(senha)) {
 			jogadoresOnline.put(usuario, cadastro);
-			String str = Usuario.staticToString(usuario, cadastro[2], cadastro[3]);
+			Usuario usr = new Usuario(usuario, senha, cadastro[1], cadastro[2], cadastro[3]);
+			String str = usr.getUsuario();
 			makeLog("Usuario " + str + " conectou-se");
 			makeLog("Usuario " + str + " tornou-se INATIVO");
 			return cadastro;
@@ -86,21 +89,44 @@ public class IDsESenhas {
 		jogadoresOnline.put(usuario, infoUsr);
 	}
 
-	public static synchronized void disconnect(String usuario, boolean isDead) {
+	public static synchronized void ficarInativo(Usuario usuario) throws IOException {
+		String[] info = jogadoresJogando.remove(usuario.getUsuario());
 		
-		String[] infoUsr = jogadoresOnline.get(usuario);
-		if(infoUsr == null) infoUsr = jogadoresJogando.get(usuario);
+		jogadoresOnline.put(usuario.getUsuario(), info);
+		jogadoresJogando.remove(usuario.getUsuario());
+		makeLog("Usuario " + usuario.getUsuario() + " tornou-se INATIVO");
+	}
+	
+	public static synchronized void disconnect(Usuario usuario, boolean isDead) {
+		
+		String usrUsuario = usuario.getUsuario();
+		String[] infoUsr = jogadoresOnline.get(usuario.getUsuario());
+		
+		if(infoUsr == null) {
+			for (int i = 0; i < partidasEmAndamento.size(); i++) {
+				
+				String usrJ1 = partidasEmAndamento.get(i).getJ1().getUsuario();
+				String usrJ2 = partidasEmAndamento.get(i).getJ2().getUsuario();
+				String usrJ3 = partidasEmAndamento.get(i).getJ3() == null ? null : partidasEmAndamento.get(i).getJ3().getUsuario();
+				String usrJ4 = partidasEmAndamento.get(i).getJ4() == null ? null : partidasEmAndamento.get(i).getJ4().getUsuario();
+				
+				if(usrUsuario.equals(usrJ1) || usrUsuario.equals(usrJ2) || usrUsuario.equals(usrJ3) || usrUsuario.equals(usrJ4)) {
+					partidasEmAndamento.remove(i);
+					break;
+				}
+			}
+		}
 		
 		try {
-			if(isDead) makeLog("Usuario " + usuario.toString() + " não responde");
-			else makeLog("Usuario " + usuario.toString() + " desconectou-se da rede");	
+			if(isDead) makeLog("Usuario " + usuario.getUsuario() + " não responde");
+			else makeLog("Usuario " + usuario.getUsuario() + " desconectou-se da rede");	
 			
-		} catch(IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		jogadoresOnline.remove(usuario);
-		jogadoresJogando.remove(usuario);
+		jogadoresOnline.remove(usuario.getUsuario());
+		jogadoresJogando.remove(usuario.getUsuario());
 	}
 	
 	public static synchronized void refreshCadastro() throws FileNotFoundException {
@@ -126,50 +152,45 @@ public class IDsESenhas {
 
 	}
 	
-	public static synchronized void jogarPartida(Partida partidaAntiga, Partida partidaNova, Usuario usuario) throws IOException {
-		String[] usuarioEstavaJogando = jogadoresJogando.get(usuario.getUsuario());
-		
-		if(usuarioEstavaJogando != null) { //
-			partidasEmAndamento.remove(partidaAntiga);
-			
-		} else {
-			String[] infoUsr = jogadoresOnline.get(usuario.getUsuario());
-			jogadoresJogando.put(usuario.getUsuario(), infoUsr);
-			jogadoresOnline.remove(usuario.getUsuario());
-			makeLog("Usuario " + Usuario.staticToString(usuario.getUsuario(), infoUsr[2], infoUsr[3]) + " tornou-se ATIVO");
-		}
-		
-		int partidaNovaJaCadastrada = partidasEmAndamento.indexOf(partidaNova);
-		if (partidaNovaJaCadastrada == -1) partidasEmAndamento.add(partidaNova);
+	public static synchronized void criarHub(InfoPartida partida, Usuario usuario) {
+		estouEntrandoEmUmHub(usuario);
+		partidasEmAndamento.add(partida);
 	}
 	
-	public static synchronized void startPartida(Partida partida) throws IOException {
+	public static synchronized void estouEntrandoEmUmHub(Usuario usuario) {
+		String[] infoUsr = jogadoresRegistrados.get(usuario.getUsuario());
+		jogadoresJogando.put(usuario.getUsuario(), infoUsr);
+		jogadoresOnline.remove(usuario.getUsuario());
 		
-		Usuario usr1 = partida.getJ1();
-		Usuario usr2 = partida.getJ2();
-		Usuario usr3 = partida.getJ3();
-		Usuario usr4 = partida.getJ4();
+		try {
+			makeLog("Usuario " + usuario.getUsuario() + " tornou-se ATIVO");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static synchronized void startPartida(InfoPartida partida) throws IOException {
 		
-		String str1 = Usuario.staticToString(usr1.getUsuario(), usr1.getIP(), usr1.getPort());
-		String str2 = Usuario.staticToString(usr2.getUsuario(), usr2.getIP(), usr2.getPort());;
+		String str1 = partida.getJ1().getUsuario();
+		String str2 = partida.getJ2().getUsuario();
 		String str3 = "";
 		String str4 = "";
 		
-		if(usr3 != null) {
-			str3 = Usuario.staticToString(usr3.getUsuario(), usr3.getIP(), usr3.getPort());
-			str4 = Usuario.staticToString(usr4.getUsuario(), usr4.getIP(), usr4.getPort());
+		if(partida.getJ3() != null) {
+			str3 = partida.getJ3().getUsuario();
+			str4 = partida.getJ4().getUsuario();
 		}
 		
 		if (str3.isEmpty() || str3.isBlank()) makeLog("Usuario " + str1 + " e " + str2 + ": PLAYING");
 		else makeLog("Usuario " + str1 + ", " + str2 + ", " + str3 + " e " + str4 + ": PLAYING");
-		
+				
 	}
 	
-	public static synchronized void finalizarPartida(Partida partida, Usuario usuario) throws IOException {
+	public static synchronized void finalizarPartida(InfoPartida partida, Usuario usuario) throws IOException {
 		partidasEmAndamento.remove(partida);
 		
 		String[] infoUsr = jogadoresJogando.get(usuario.getUsuario());
-		String string = Usuario.staticToString(usuario.getUsuario(), infoUsr[2], infoUsr[3]);
+		String string = usuario.getUsuario();
 		makeLog("Usuario " + string + " tornou-se INATIVO");
 		
 		jogadoresOnline.put(usuario.getUsuario(), infoUsr);
@@ -186,7 +207,7 @@ public class IDsESenhas {
 		return arrayUsuarios;
 	}
 	
-	public static synchronized ArrayList<Partida> listJogando() {
+	public static synchronized ArrayList<InfoPartida> listJogando() {
 		return partidasEmAndamento;
 	}
 	

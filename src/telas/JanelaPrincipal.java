@@ -14,7 +14,7 @@ import javax.swing.JMenuItem;
 import controladoras.ControladorPrincipal;
 import main.Cliente;
 import main.ClientePeer;
-import main.Partida;
+import main.InfoPartida;
 import main.ServidorPeer;
 import main.Usuario;
 
@@ -36,12 +36,11 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 	private ClientePeer clientePeer;
 	private ServidorPeer servidorPeer;
 	
-	private Usuario usuario;
 	private Cliente cliente;
 	
 	private boolean isJogando = false;
 	
-	public JanelaPrincipal(Usuario user, Cliente cliente) {
+	public JanelaPrincipal(Cliente cliente) {
 		super();
 		setSize(new Dimension(800, 600));
 		setResizable(false);
@@ -51,7 +50,6 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);		
 		
-		this.usuario = user;
 		this.cliente = cliente;
 				
 		configuraTelas();
@@ -80,8 +78,8 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		vetorPainel = new ArrayList<>();
 		vetorPainel.add(new PainelListagemOnline(cliente));
 		vetorPainel.add(new PainelListagemJogando(cliente));
-		vetorPainel.add(new PainelHubPartida(usuario));
-		vetorPainel.add(new PainelJogo(vetorPainel.get(0)));
+		vetorPainel.add(new PainelHubPartida());
+		vetorPainel.add(new PainelJogo());
 	}
 	
 	public class ListenerTrocaPainel implements ActionListener {
@@ -94,11 +92,8 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			try {
-				ControladorPrincipal.clientePeer.encerrarTodasAsConexoes();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			ControladorPrincipal.encerrarTodasAsConexoes();
+			
 			trocaPainel(painelDestino);
 		}
 		
@@ -128,6 +123,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 			}
 		}
 		
+		painelAtual.getPainel().repaint();
 		getContentPane().add(painelAtual.getPainel(), BorderLayout.CENTER);
 		getContentPane().repaint();
 		setVisible(true);
@@ -147,21 +143,99 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		setJMenuBar(null);
 	}
 	
-	public void atualizarPartidaParaTodos(Partida partida) throws IOException {
+	public void criarHubPartida(Usuario usuario, Usuario rival) {
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelHubPartida) {
 				PainelHubPartida hub = (PainelHubPartida) vetorPainel.get(i);
-				ControladorPrincipal.clientePeer.atualizarPartida(partida);
-				hub.setPartida(partida);
+				hub.criarPartida(usuario, rival);
+				trocaPainel(hub);
 			}
 		}
 	}
 	
-	public void atualizarPartidaParaMim(Partida partida) {
+	public void atualizarPecas(int jogador, int indexPeca1, int indexPeca2) {
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelHubPartida) {
 				PainelHubPartida hub = (PainelHubPartida) vetorPainel.get(i);
-				hub.setPartida(partida);
+				hub.setPecas(jogador, indexPeca1, indexPeca2);
+			}
+		}
+	}
+	
+	public void atualizarPronto(boolean pronto, int qualJogadorSou) {
+		for (int i = 0; i < vetorPainel.size(); i++) {
+			if (vetorPainel.get(i) instanceof PainelHubPartida) {
+				PainelHubPartida hub = (PainelHubPartida) vetorPainel.get(i);
+				hub.atualizarPronto(pronto, qualJogadorSou);
+			}
+		}
+	}
+	
+	public int[] getInfoStartPartida() {
+		int[] info = {-1, -1, -1};
+		for (int i = 0; i < vetorPainel.size(); i++) {
+			if (vetorPainel.get(i) instanceof PainelHubPartida) {
+				PainelHubPartida hub = (PainelHubPartida) vetorPainel.get(i);
+				info[0] = hub.getQualJogadorSou();
+				info[1] = hub.getIndexPeca1();
+				info[2] = hub.getIndexPeca2();
+				break;
+			}
+		}
+		
+		return info;
+	}
+	
+
+	public InfoPartida getInfoPartida() {
+		InfoPartida info = null;
+		
+		for (int i = 0; i < vetorPainel.size(); i++) {
+			if (vetorPainel.get(i) instanceof PainelHubPartida) {
+				PainelHubPartida hub = (PainelHubPartida) vetorPainel.get(i);
+				info = hub.getInfoPartida();
+				break;
+			}
+		}
+		
+		return info;
+	}
+	
+	public void iniciarPecaDaPartida(int qualJogadorSou, int indexPeca1, int indexPeca2, int qtdJogadores) {
+		for (int i = 0; i < vetorPainel.size(); i++) {
+			if (vetorPainel.get(i) instanceof PainelJogo) {
+				PainelJogo jogo = (PainelJogo) vetorPainel.get(i);
+				jogo.iniciarPecaDaPartida(qualJogadorSou, indexPeca1, indexPeca2, qtdJogadores);
+				trocaPainel(jogo);
+				break;
+			}
+		}
+		
+	}
+	
+	public void setQualJogadorSou(int qualJogadorSou) {
+		for (int i = 0; i < vetorPainel.size(); i++) {
+			if (vetorPainel.get(i) instanceof PainelHubPartida) {
+				PainelHubPartida hub = (PainelHubPartida) vetorPainel.get(i);
+				hub.setQualJogadorSou(qualJogadorSou);
+			}
+		}
+	}
+	
+	public void receberJogada(int energiaEsq, int expEsq, int energiaDir, int expDir, int muro, int qualJogadorSou) {
+		for (int i = 0; i < vetorPainel.size(); i++) {
+			if (vetorPainel.get(i) instanceof PainelJogo) {
+				PainelJogo jogo = (PainelJogo) vetorPainel.get(i);
+				jogo.receberJogada(energiaEsq, expEsq, energiaDir, expDir, muro, qualJogadorSou);
+			}
+		}
+	}
+	
+	public void receberPronto(boolean pronto, int qualJogadorSou) {
+		for (int i = 0; i < vetorPainel.size(); i++) {
+			if (vetorPainel.get(i) instanceof PainelHubPartida) {
+				PainelHubPartida hub = (PainelHubPartida) vetorPainel.get(i);
+				hub.setProntoIndex(pronto, qualJogadorSou);
 			}
 		}
 	}
@@ -178,12 +252,13 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 	@Override
 	public void windowClosing(WindowEvent e) {
 		try {
+			
 			if (isJogando) {
-				ControladorPrincipal.clientePeer.cancelarPartida();
+				ControladorPrincipal.cancelarPartida();
 			}
 					
 			cliente.encerrarConexao();
-			ControladorPrincipal.clientePeer.encerrarTodasAsConexoes();
+			ControladorPrincipal.encerrarTodasAsConexoes();
 			
 		} catch (IOException | ClassNotFoundException e1) {
 			e1.printStackTrace();

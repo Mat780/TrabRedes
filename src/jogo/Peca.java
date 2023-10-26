@@ -1,24 +1,25 @@
 package jogo;
 
-import javax.swing.ImageIcon;
+import java.io.Serializable;
 
-public abstract class Peca {
-	protected int atributoDaEsq;
-	protected int atributoDaDir;
-	protected int nivel;
-	protected int experiencia;
-	protected int energia;
-	protected int quandoAtacar;
-	private ImageIcon icone;
+public abstract class Peca implements Serializable {
+
+	private static final long serialVersionUID = -3394292443815323189L;
+
+	private int atributoDaEsq; 
+	private int atributoDaDir; 
+	private int nivel; 
+	private int experiencia; 
+	private int energia; 
+	private int quandoAtacar;
 	
-	protected Peca(int atributoDaEsq, int atributoDaDir, int experiencia, int energia, int quandoAtacar, String icone) {
+	protected Peca(int atributoDaEsq, int atributoDaDir, int experiencia, int energia, int quandoAtacar) {
 		setAtributoDaEsq(atributoDaEsq);
 		setAtributoDaDir(atributoDaDir);
 		setNivel(1);
 		setExperiencia(experiencia);
 		setEnergia(energia);
 		setQuandoAtacar(quandoAtacar);
-		this.icone = new ImageIcon("imagens/" + icone);
 	}
 	
 	protected void setAtributoDaEsq(int atributoDaEsq) {
@@ -34,10 +35,14 @@ public abstract class Peca {
 	}
 	
 	protected void setExperiencia(int experiencia) {
+		if (experiencia > 6) experiencia = 6;
 		this.experiencia = experiencia;
 	}
 	
 	protected void setEnergia(int energia) {
+		if      (energia < 0) 			 energia = 0;
+		else if (energia > quandoAtacar) energia = quandoAtacar;
+		
 		this.energia = energia;
 	}
 	
@@ -69,17 +74,19 @@ public abstract class Peca {
 		return quandoAtacar;
 	}
 	
-	public ImageIcon getIcon() {
-		return icone;
+	public void receberJogada(int energia, int exp) {
+		setEnergia(getEnergia() + energia);
+		setExperiencia(getExperiencia() + exp);
 	}
 	
-	public void atacar(int energia, Castelo casteloInimigo) {
-		// Propositalmente vazio
-		System.out.println("Atacar não foi implementado nesta peca");
-	}
+	public abstract int getID();
 	
-	public void aumentarNivel(int experiencia, Castelo casteloInimigo) {
-		// Implementa nos filhos
-	}
+	public abstract void atacar(Castelo casteloInimigo, String jogador);
+	
+	public abstract void defender(Castelo casteloAliado, String jogador);
+	
+	public abstract void aumentarNivel(Castelo casteloInimigo, String jogador);
+	
+	public abstract Peca clonarPeca();
 	
 }

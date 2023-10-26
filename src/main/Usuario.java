@@ -5,6 +5,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Usuario implements Serializable{
+	
+	private static final long serialVersionUID = -8612276964266109729L;
+	
 	protected String nome;
 	protected String usuario;
 	private String senha;
@@ -66,7 +69,11 @@ public class Usuario implements Serializable{
 	
 	@Override
 	public String toString() {
-		return "  Usuario: " + usuario + " IP: " + ip + " Port: " + port;
+		return "Usuario: " + usuario + " IP: " + ip + " Port: " + port;
+	}
+	
+	public String toStringSemPrefixo() {
+		return usuario + " IP: " + ip + " Port: " + port;
 	}
 
 }

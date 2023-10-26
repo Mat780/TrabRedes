@@ -10,24 +10,21 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
 
 import main.Cliente;
-import main.Partida;
-import main.Usuario;
+import main.InfoPartida;
 
 public class PainelListagemJogando implements Painel{
 	
 	private JPanel painel;
-	private DefaultListModel<Partida> listaPartidas = new DefaultListModel<>();
-	private JList<Partida> listaNoPainel = new JList<>(listaPartidas);
+	private DefaultListModel<InfoPartida> listaPartidas = new DefaultListModel<>();
+	private JList<InfoPartida> listaNoPainel = new JList<>(listaPartidas);
 	private JButton botaoConectar;
 	private JButton botaoAtualizar;
 	private JLabel labelOnline;
@@ -110,7 +107,7 @@ public class PainelListagemJogando implements Painel{
 	}
 	
 	private void atualizarLista() {
-		listaPartidas.removeAllElements();
+		listaPartidas.clear();
 		
 		try {
 			listaPartidas.addAll(cliente.listarJogando());
@@ -125,6 +122,7 @@ public class PainelListagemJogando implements Painel{
 		
 		// Após a att é precisa setar novamente
 		listaNoPainel.setModel(listaPartidas);
+		listaNoPainel.repaint();
 	}
 	
 	@Override

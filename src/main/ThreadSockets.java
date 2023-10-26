@@ -22,7 +22,6 @@ public class ThreadSockets extends Thread {
 	
 	@Override
 	public void run() {
-		System.out.println("[ATENDENDO] " + Thread.currentThread().getName());
 		boolean online = true;
 		ObjectOutputStream saida = null;
 		ObjectInputStream entrada = null;
@@ -67,7 +66,7 @@ public class ThreadSockets extends Thread {
 						saida.writeObject(listaOnline);
 						
 					} else if (protocolo.equals(Protocolos.LIST_USER_PLAYING.name())) {
-						ArrayList<Partida> listaPartidas = IDsESenhas.listJogando();
+						ArrayList<InfoPartida> listaPartidas = IDsESenhas.listJogando();
 						saida.writeObject(listaPartidas);
 						
 					} else if (protocolo.equals(Protocolos.UPDATE_IP.name())) {
@@ -81,18 +80,21 @@ public class ThreadSockets extends Thread {
 						saida.writeObject("Ok");
 						
 					} else if (protocolo.equals(Protocolos.GAME_HUB.name())) {
-						Partida pAntiga = (Partida) entrada.readObject();
-						Partida pNova   = (Partida) entrada.readObject();
-						IDsESenhas.jogarPartida(pAntiga, pNova, usuarioAtual);
-						saida.writeObject("Ok");
+						InfoPartida partida = (InfoPartida) entrada.readObject();
+						IDsESenhas.criarHub(partida, usuarioAtual);
+						saida.writeObject(Protocolos.OK.name());
+						
+					} else if (protocolo.equals(Protocolos.GAME_HUB_ENTER.name())) {
+						IDsESenhas.estouEntrandoEmUmHub(usuarioAtual);
+						saida.writeObject(Protocolos.OK.name());
 						
 					} else if (protocolo.equals(Protocolos.GAME_START.name())) {
-						Partida partida = (Partida) entrada.readObject();
+						InfoPartida partida = (InfoPartida) entrada.readObject();
 						IDsESenhas.startPartida(partida);
 						saida.writeObject("Ok");
 						
 					} else if (protocolo.equals(Protocolos.GAME_OVER.name())) {
-						Partida partida = (Partida) entrada.readObject();
+						InfoPartida partida = (InfoPartida) entrada.readObject();
 						IDsESenhas.finalizarPartida(partida, usuarioAtual);
 						saida.writeObject("Ok");
 						
@@ -100,7 +102,7 @@ public class ThreadSockets extends Thread {
 						online = false;
 						
 						if (usuarioAtual != null) {
-							IDsESenhas.disconnect(usuarioAtual.getUsuario(), false);
+							IDsESenhas.disconnect(usuarioAtual, false);
 							
 						} else {
 							System.out.println("Alguma coisa tá errada");
@@ -119,9 +121,9 @@ public class ThreadSockets extends Thread {
 					} else if (protocolo.equals(Protocolos.GET_QTD_JOGANDO.name())) {
 						saida.writeObject(IDsESenhas.getQtdJogando());
 						
-					} else if (protocolo.equals("Msg")) { //! Debug
-						String m = (String) entrada.readObject();
-						saida.writeObject(m.toUpperCase());
+					} else if (protocolo.equals(Protocolos.VOLTAR_LIST_ONLINE.name())) { 
+						IDsESenhas.ficarInativo(usuarioAtual);
+						saida.writeObject(Protocolos.OK.name());
 						
 					} else if (protocolo.equals(Protocolos.STAY_ALIVE.name()) == false) {
 						System.out.println("Erro indeterminado ao receber: " + protocolo + ", Conexao será fechada por conta deste erro");
@@ -131,21 +133,21 @@ public class ThreadSockets extends Thread {
 					
 			} catch (SocketTimeoutException e) {
 				
-				IDsESenhas.disconnect(usuarioAtual.getUsuario(), true);
+				IDsESenhas.disconnect(usuarioAtual, true);
 				online = false;
 				
 			} catch(EOFException e) {
-				IDsESenhas.disconnect(usuarioAtual.getUsuario(), false);
+				IDsESenhas.disconnect(usuarioAtual, false);
 				online = false;
 				
 			} catch (SocketException e) {
 				// Quando o cliente fecha a aplicação dele ele solta um connection reset
 				// Portanto coloquei um if para caso não seja isso, ele avise de possiveis problemas
-				if (e.getMessage().equals("Connection reset")) {
+				if (e.getMessage().equals("Connection reset") == false) {
 					e.printStackTrace();
 				}
 				
-				IDsESenhas.disconnect(usuarioAtual.getUsuario(), false);
+				IDsESenhas.disconnect(usuarioAtual, false);
 				online = false;
 				
 			} catch (Exception e) {
@@ -153,8 +155,6 @@ public class ThreadSockets extends Thread {
 				online = false;
 			} 
 		}			
-		
-		System.out.println("Fechando conexão");
 		
 		try {
 			saida.close();

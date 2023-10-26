@@ -13,6 +13,7 @@ import jogo.ClerigoPeca;
 import jogo.ConstrutorPeca;
 import jogo.MagoPeca;
 import jogo.Peca;
+import main.InfoPartida;
 import main.Partida;
 import main.Usuario;
 
@@ -26,33 +27,37 @@ import java.awt.event.ActionListener;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
 
 public class PainelHubPartida implements Painel{
 
 	private JPanel painel;
-	private Usuario euUsuario;
-	private Partida partida;
+	private InfoPartida partida;
 	
 	private int qualJogadorSou;
+	private boolean[] pronto = {false, false, false, false};
 	
 	private JButton botaoConectar;
-	private JButton botaoAtualizar;
 	
 	private JPanel painelTimes;
-	private JPanel panelTimeVermelho;
+	private JPanel painelTimeVermelho;
 	private JPanel painelTimeAzul;
 		
-	private JPanel painelSelecaoPecasAzul1;
 	private JPanel painelDivisaoAzul;
 	private JLabel labelTimeAzul;
+	private JPanel painelSelecaoPecasAzul1;
+	private JPanel painelSelecaoPecasAzul2;
 	
 	private JLabel labelJogador1;
+	private ListenerJComboBox listenerJ1P1;
+	private ListenerJComboBox listenerJ1P2;
 	private JComboBox<Peca> jogador1Peca1;
 	private JComboBox<Peca> jogador1Peca2;
 	
 	private JLabel labelJogador3;
-	private JPanel painelSelecaoPecasAzul2;
+	private ListenerJComboBox listenerJ3P1;
+	private ListenerJComboBox listenerJ3P2;
 	private JComboBox<Peca> jogador3Peca1;
 	private JComboBox<Peca> jogador3Peca2;
 	
@@ -61,30 +66,34 @@ public class PainelHubPartida implements Painel{
 	private JPanel painelSelecaoPecasVermelho2;
 	
 	private JLabel labelJogador2;
+	private ListenerJComboBox listenerJ2P1;
+	private ListenerJComboBox listenerJ2P2;
 	private JComboBox<Peca> jogador2Peca1;
 	private JComboBox<Peca> jogador2Peca2;
 	
 	private JLabel labelJogador4;
+	private ListenerJComboBox listenerJ4P1;
+	private ListenerJComboBox listenerJ4P2;
 	private JComboBox<Peca> jogador4Peca1;
 	private JComboBox<Peca> jogador4Peca2;
 	
-	
 	private Peca[] pecasDoJogo = {
-			new CavaleiroPeca(),
-			new MagoPeca(),
-			new ArqueiraPeca(),
-			new ClerigoPeca(),
-			new AssassinoPeca(),
-			new ConstrutorPeca()
+			new CavaleiroPeca(), 	// 0
+			new MagoPeca(), 		// 1
+			new ArqueiraPeca(),		// 2
+			new ClerigoPeca(),		// 3
+			new AssassinoPeca(),	// 4
+			new ConstrutorPeca()	// 5
 	};
 	
-	public PainelHubPartida(Usuario usuario) {
+	
+	public PainelHubPartida() {
 		painel = new JPanel();
 		painel.setBackground(Color.GRAY);
 		painel.setMaximumSize(new Dimension(800, 600));
 		painel.setLayout(null);
 		
-		this.euUsuario = usuario;
+		partida = new InfoPartida(null, null);
 		
 		JPanel painelDelimitador = new JPanel();
 		painelDelimitador.setBorder(new EmptyBorder(10, 20, 10, 20));
@@ -95,7 +104,7 @@ public class PainelHubPartida implements Painel{
 		
 		JPanel painelBotoes = new JPanel();
 		painelBotoes.setBackground(Color.LIGHT_GRAY);
-		painelBotoes.setLayout(new GridLayout(0, 2, 80, 0));
+		painelBotoes.setLayout(new GridLayout(0, 1, 80, 0));
 		
 		botaoConectar = new JButton("Estou pronto!");
 		botaoConectar.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -103,31 +112,28 @@ public class PainelHubPartida implements Painel{
 		
 		painelBotoes.add(botaoConectar);
 		
-		botaoAtualizar = new JButton("Trocar de time");
-		botaoAtualizar.setFont(new Font("Arial", Font.PLAIN, 18));
-		botaoAtualizar.addActionListener(new ListenerTrocaTime());
-		
-		painelBotoes.add(botaoAtualizar);
-		
 		painelTimes = new JPanel();
 		GroupLayout gl_painelDelimitador = new GroupLayout(painelDelimitador);
 		gl_painelDelimitador.setHorizontalGroup(
-			gl_painelDelimitador.createParallelGroup(Alignment.TRAILING)
-				.addGroup(Alignment.LEADING, gl_painelDelimitador.createSequentialGroup()
-					.addContainerGap()
+			gl_painelDelimitador.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_painelDelimitador.createSequentialGroup()
 					.addGroup(gl_painelDelimitador.createParallelGroup(Alignment.LEADING)
-						.addComponent(painelTimes, GroupLayout.PREFERRED_SIZE, 670, Short.MAX_VALUE)
-						.addComponent(painelBotoes, GroupLayout.DEFAULT_SIZE, 756, Short.MAX_VALUE))
+						.addGroup(gl_painelDelimitador.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(painelTimes, GroupLayout.PREFERRED_SIZE, 670, Short.MAX_VALUE))
+						.addGroup(gl_painelDelimitador.createSequentialGroup()
+							.addGap(143)
+							.addComponent(painelBotoes, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)))
 					.addContainerGap())
 		);
 		gl_painelDelimitador.setVerticalGroup(
-			gl_painelDelimitador.createParallelGroup(Alignment.TRAILING)
+			gl_painelDelimitador.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_painelDelimitador.createSequentialGroup()
 					.addGap(29)
 					.addComponent(painelTimes, GroupLayout.PREFERRED_SIZE, 362, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
+					.addGap(31)
 					.addComponent(painelBotoes, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap())
+					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		painelTimes.setLayout(new GridLayout(2, 0, 0, 0));
 		
@@ -150,38 +156,16 @@ public class PainelHubPartida implements Painel{
 		painelSelecaoPecasAzul1.setLayout(new GridLayout(0, 2, 0, 0));
 		
 		jogador1Peca1 = new JComboBox<>(pecasDoJogo);
+		jogador1Peca2 = new JComboBox<>(pecasDoJogo);
 		
-		jogador1Peca1.addActionListener(e -> {
-			int indexPeca1 = jogador1Peca1.getSelectedIndex();
-			int indexPeca2 = jogador1Peca2.getSelectedIndex();
-			
-			if (indexPeca1 == indexPeca2) {
-				int novoIndex = (indexPeca1 + 1) % pecasDoJogo.length;
-				jogador1Peca1.setSelectedIndex(novoIndex);
-			
-			}
-			
-			partida.setPecaJ1(jogador1Peca1.getItemAt(indexPeca1), jogador1Peca2.getItemAt(indexPeca2));
-			
-		});
+		listenerJ1P1 = new ListenerJComboBox(jogador1Peca1, jogador1Peca2, true);
+		jogador1Peca1.addActionListener(listenerJ1P1);
 		
 		jogador1Peca1.setBackground(new Color(170, 213, 255));
 		painelSelecaoPecasAzul1.add(jogador1Peca1);
 		
-		jogador1Peca2 = new JComboBox<>(pecasDoJogo);
-		
-		jogador1Peca2.addActionListener(e -> {
-			int indexPeca1 = jogador1Peca1.getSelectedIndex();
-			int indexPeca2 = jogador1Peca2.getSelectedIndex();
-			
-			if (indexPeca1 == indexPeca2) {
-				int novoIndex = (indexPeca2 + 1) % pecasDoJogo.length;
-				jogador1Peca2.setSelectedIndex(novoIndex);
-			
-			}
-			
-			partida.setPecaJ1(jogador1Peca1.getItemAt(indexPeca1), jogador1Peca2.getItemAt(indexPeca2));
-		});
+		listenerJ1P2 = new ListenerJComboBox(jogador1Peca1, jogador1Peca2, false);
+		jogador1Peca2.addActionListener(listenerJ1P2);
 		
 		jogador1Peca2.setBackground(new Color(170, 213, 255));
 		painelSelecaoPecasAzul1.add(jogador1Peca2);
@@ -195,37 +179,16 @@ public class PainelHubPartida implements Painel{
 		painelSelecaoPecasAzul2.setLayout(new GridLayout(0, 2, 0, 0));
 		
 		jogador3Peca1 = new JComboBox<>(pecasDoJogo);
+		jogador3Peca2 = new JComboBox<>(pecasDoJogo);
 		
-		jogador3Peca1.addActionListener(e -> {
-			int indexPeca1 = jogador3Peca1.getSelectedIndex();
-			int indexPeca2 = jogador3Peca2.getSelectedIndex();
-			
-			if (indexPeca1 == indexPeca2) {
-				int novoIndex = (indexPeca1 + 1) % pecasDoJogo.length;
-				jogador3Peca1.setSelectedIndex(novoIndex);
-			
-			}
-			
-			partida.setPecaJ3(jogador3Peca1.getItemAt(indexPeca1), jogador3Peca2.getItemAt(indexPeca2));
-		});
+		listenerJ3P1 = new ListenerJComboBox(jogador3Peca1, jogador3Peca2, true);
+		jogador3Peca1.addActionListener(listenerJ3P1);
 		
 		jogador3Peca1.setBackground(new Color(170, 213, 255));
 		painelSelecaoPecasAzul2.add(jogador3Peca1);
 		
-		jogador3Peca2 = new JComboBox<>(pecasDoJogo);
-		
-		jogador3Peca2.addActionListener(e -> {
-			int indexPeca1 = jogador3Peca1.getSelectedIndex();
-			int indexPeca2 = jogador3Peca2.getSelectedIndex();
-			
-			if (indexPeca1 == indexPeca2) {
-				int novoIndex = (indexPeca1 + 1) % pecasDoJogo.length;
-				jogador3Peca2.setSelectedIndex(novoIndex);
-			
-			}
-			
-			partida.setPecaJ3(jogador3Peca1.getItemAt(indexPeca1), jogador3Peca2.getItemAt(indexPeca2));
-		});
+		listenerJ3P2 = new ListenerJComboBox(jogador3Peca1, jogador3Peca2, false);
+		jogador3Peca2.addActionListener(listenerJ3P2);
 		
 		jogador3Peca2.setBackground(new Color(170, 213, 255));
 		painelSelecaoPecasAzul2.add(jogador3Peca2);
@@ -250,27 +213,27 @@ public class PainelHubPartida implements Painel{
 		);
 		painelTimeAzul.setLayout(gl_painelTimeAzul);
 		
-		panelTimeVermelho = new JPanel();
-		painelTimes.add(panelTimeVermelho);
+		painelTimeVermelho = new JPanel();
+		painelTimes.add(painelTimeVermelho);
 		
 		labelTimeVermelho = new JLabel("Time Vermelho");
 		labelTimeVermelho.setForeground(new Color(255, 0, 0));
 		labelTimeVermelho.setFont(new Font("Bauhaus 93", Font.PLAIN, 20));
 		
 		JPanel painelSelecaoPecasVermelha = new JPanel();
-		GroupLayout gl_panelTimeVermelho = new GroupLayout(panelTimeVermelho);
-		gl_panelTimeVermelho.setHorizontalGroup(
-			gl_panelTimeVermelho.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_panelTimeVermelho.createSequentialGroup()
+		GroupLayout gl_painelTimeVermelho = new GroupLayout(painelTimeVermelho);
+		gl_painelTimeVermelho.setHorizontalGroup(
+			gl_painelTimeVermelho.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_painelTimeVermelho.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(gl_panelTimeVermelho.createParallelGroup(Alignment.LEADING)
+					.addGroup(gl_painelTimeVermelho.createParallelGroup(Alignment.LEADING)
 						.addComponent(painelSelecaoPecasVermelha, GroupLayout.PREFERRED_SIZE, 645, GroupLayout.PREFERRED_SIZE)
 						.addComponent(labelTimeVermelho))
 					.addContainerGap(91, Short.MAX_VALUE))
 		);
-		gl_panelTimeVermelho.setVerticalGroup(
-			gl_panelTimeVermelho.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_panelTimeVermelho.createSequentialGroup()
+		gl_painelTimeVermelho.setVerticalGroup(
+			gl_painelTimeVermelho.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_painelTimeVermelho.createSequentialGroup()
 					.addContainerGap()
 					.addComponent(labelTimeVermelho)
 					.addPreferredGap(ComponentPlacement.RELATED)
@@ -288,37 +251,16 @@ public class PainelHubPartida implements Painel{
 		painelSelecaoPecasVermelho1.setLayout(new GridLayout(0, 2, 0, 0));
 		
 		jogador2Peca1 = new JComboBox<>(pecasDoJogo);
+		jogador2Peca2 = new JComboBox<>(pecasDoJogo);
 		
-		jogador2Peca1.addActionListener(e -> {
-			int indexPeca1 = jogador2Peca1.getSelectedIndex();
-			int indexPeca2 = jogador2Peca2.getSelectedIndex();
-			
-			if (indexPeca1 == indexPeca2) {
-				int novoIndex = (indexPeca1 + 1) % pecasDoJogo.length;
-				jogador2Peca1.setSelectedIndex(novoIndex);
-			
-			}
-			
-			partida.setPecaJ2(jogador2Peca1.getItemAt(indexPeca1), jogador2Peca2.getItemAt(indexPeca2));
-		});
+		listenerJ2P1 = new ListenerJComboBox(jogador2Peca1, jogador2Peca2, true);
+		jogador2Peca1.addActionListener(listenerJ2P1);
 		
 		jogador2Peca1.setBackground(new Color(255, 170, 170));
 		painelSelecaoPecasVermelho1.add(jogador2Peca1);
 		
-		jogador2Peca2 = new JComboBox<>(pecasDoJogo);
-		
-		jogador2Peca2.addActionListener(e -> {
-			int indexPeca1 = jogador2Peca1.getSelectedIndex();
-			int indexPeca2 = jogador2Peca2.getSelectedIndex();
-			
-			if (indexPeca1 == indexPeca2) {
-				int novoIndex = (indexPeca1 + 1) % pecasDoJogo.length;
-				jogador2Peca2.setSelectedIndex(novoIndex);
-			
-			}
-			
-			partida.setPecaJ2(jogador2Peca1.getItemAt(indexPeca1), jogador2Peca2.getItemAt(indexPeca2));
-		});
+		listenerJ2P2 = new ListenerJComboBox(jogador2Peca1, jogador2Peca2, false);
+		jogador2Peca2.addActionListener(listenerJ2P2);
 		
 		jogador2Peca2.setBackground(new Color(255, 170, 170));
 		painelSelecaoPecasVermelho1.add(jogador2Peca2);
@@ -332,226 +274,370 @@ public class PainelHubPartida implements Painel{
 		painelSelecaoPecasVermelho2.setLayout(new GridLayout(0, 2, 0, 0));
 		
 		jogador4Peca1 = new JComboBox<>(pecasDoJogo);
+		jogador4Peca2 = new JComboBox<>(pecasDoJogo);
 		
-		jogador4Peca1.addActionListener(e -> {
-			int indexPeca1 = jogador4Peca1.getSelectedIndex();
-			int indexPeca2 = jogador4Peca2.getSelectedIndex();
-			
-			if (indexPeca1 == indexPeca2) {
-				int novoIndex = (indexPeca1 + 1) % pecasDoJogo.length;
-				jogador4Peca1.setSelectedIndex(novoIndex);
-			
-			}
-			
-			partida.setPecaJ4(jogador4Peca1.getItemAt(indexPeca1), jogador4Peca2.getItemAt(indexPeca2));
-		});
+		listenerJ4P1 = new ListenerJComboBox(jogador4Peca1, jogador4Peca2, true);
+		jogador4Peca1.addActionListener(listenerJ4P1);
 		
 		jogador4Peca1.setBackground(new Color(255, 170, 170));
 		painelSelecaoPecasVermelho2.add(jogador4Peca1);
 		
-		jogador4Peca2 = new JComboBox<>(pecasDoJogo);
-		
-		jogador4Peca2.addActionListener(e -> {
-			int indexPeca1 = jogador4Peca1.getSelectedIndex();
-			int indexPeca2 = jogador4Peca2.getSelectedIndex();
-			
-			if (indexPeca1 == indexPeca2) {
-				int novoIndex = (indexPeca1 + 1) % pecasDoJogo.length;
-				jogador4Peca2.setSelectedIndex(novoIndex);
-			
-			}
-			
-			partida.setPecaJ4(jogador4Peca1.getItemAt(indexPeca1), jogador4Peca2.getItemAt(indexPeca2));
-		});
+		listenerJ4P2 = new ListenerJComboBox(jogador4Peca1, jogador4Peca2, false);
+		jogador4Peca2.addActionListener(listenerJ4P2);
 		
 		jogador4Peca2.setBackground(new Color(255, 170, 170));
 		painelSelecaoPecasVermelho2.add(jogador4Peca2);
-		panelTimeVermelho.setLayout(gl_panelTimeVermelho);
+		painelTimeVermelho.setLayout(gl_painelTimeVermelho);
 		painelDelimitador.setLayout(gl_painelDelimitador);
-		
+		resetaPecas();
 	}
 	
-	private class ListenerTrocaTime implements ActionListener {
+	private class ListenerJComboBox implements ActionListener {
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			
-			int qualJogadorEuEra = qualJogadorSou;
-			
-			Usuario j1 = partida.getJ1();
-			Usuario j2 = partida.getJ2();
-			Usuario j3 = partida.getJ3();
-			Usuario j4 = partida.getJ4();
-			
-			if (j1 == null) {
-				partida.setJ1(euUsuario);
-				qualJogadorSou = 1;
-				
-			} else if (j2 == null) {
-				partida.setJ2(euUsuario);
-				qualJogadorSou = 2;
-				
-			} else if (j3 == null) {
-				partida.setJ3(euUsuario);
-				qualJogadorSou = 3;
-				
-			} else if (j4 == null) {
-				partida.setJ4(euUsuario);
-				qualJogadorSou = 4;
-				
-			} else {
-				return;
-			}
-			
-			trocarPecasEntreJComboBox(qualJogadorSou, qualJogadorEuEra);
-			
-			if      (qualJogadorEuEra == 1) partida.setJ1(null);
-			else if (qualJogadorEuEra == 2) partida.setJ2(null);
-			else if (qualJogadorEuEra == 3) partida.setJ3(null);
-			else    						partida.setJ4(null);
-			
-			ControladorPrincipal.atualizarPartidaParaTodos(partida);
-			
-		}
+		private JComboBox<Peca> box1;
+		private JComboBox<Peca> box2;
+		private boolean souBox1;
+		private boolean possoEscutar;
 		
-		private void trocarPecasEntreJComboBox(int jogadorAtual, int jogadorAntigo) {
-			Peca peca1 = null;
-			Peca peca2 = null;
-			
-			if (jogadorAntigo == 1) {
-				peca1 = (Peca) jogador1Peca1.getSelectedItem();
-				peca2 = (Peca) jogador1Peca2.getSelectedItem();
-				
-			} else if (jogadorAntigo == 2) {
-				peca1 = (Peca) jogador2Peca1.getSelectedItem();
-				peca2 = (Peca) jogador2Peca2.getSelectedItem();
-				
-			} else if (jogadorAntigo == 3) {
-				peca1 = (Peca) jogador3Peca1.getSelectedItem();
-				peca2 = (Peca) jogador3Peca2.getSelectedItem();
-				
-			} else if (jogadorAntigo == 4) {
-				peca1 = (Peca) jogador4Peca1.getSelectedItem();
-				peca2 = (Peca) jogador4Peca2.getSelectedItem();
-			}
-			
-			if (jogadorAtual == 1) {
-				partida.setPecaJ1(peca1, peca2);
-				jogador1Peca1.setSelectedItem(peca1);
-				jogador1Peca2.setSelectedItem(peca2);
-				
-			} else if (jogadorAtual == 2) {
-				partida.setPecaJ2(peca1, peca2);
-				jogador2Peca1.setSelectedItem(peca1);
-				jogador2Peca2.setSelectedItem(peca2);
-				
-			} else if (jogadorAtual == 3) {
-				partida.setPecaJ3(peca1, peca2);
-				jogador3Peca1.setSelectedItem(peca1);
-				jogador3Peca2.setSelectedItem(peca2);
-				
-			} else if (jogadorAtual == 4) {
-				partida.setPecaJ4(peca1, peca2);
-				jogador4Peca1.setSelectedItem(peca1);
-				jogador4Peca2.setSelectedItem(peca2);
-				
-			}
-			
-		}
-		
-	}
-
-	
-	private class ListenerConectar implements ActionListener {
-
-		public ListenerConectar() {
-			// TODO Auto-generated constructor stub
+		public ListenerJComboBox(JComboBox<Peca> box1, JComboBox<Peca> box2, boolean souBox1) {
+			this.box1 = box1;
+			this.box2 = box2;
+			this.souBox1 = souBox1;
+			this.possoEscutar = true;
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
+		public synchronized void actionPerformed(ActionEvent e) {
+			int indexPeca1 = box1.getSelectedIndex();
+			int indexPeca2 = box2.getSelectedIndex();
 			
+			if (possoEscutar) {
+				if (indexPeca1 == indexPeca2) {
+					JOptionPane.showMessageDialog(null, "Você não pode escolher a mesma peça", "Erro: Peça igual", JOptionPane.ERROR_MESSAGE);
+					
+					desativarEscuta();
+					if (souBox1) box1.setSelectedIndex((indexPeca1 + 1) % pecasDoJogo.length);
+					else 		 box2.setSelectedIndex((indexPeca2 + 1) % pecasDoJogo.length);
+					ativarEscuta();
+					
+				} else {
+					// Linha abaixo nao esta funcionado
+					// ControladorPrincipal.atualizarHubPeca(qualJogadorSou, indexPeca1, indexPeca2);
+				}
+			} 
+		}
+		
+		public void desativarEscuta() {
+			this.possoEscutar = false;
+		}
+		
+		public void ativarEscuta() {
+			this.possoEscutar = true;
 		}
 		
 	}
 	
-	public void setPartida(Partida p) {
-		partida = p;
-		
-		Usuario j1 = p.getJ1();
-		Usuario j2 = p.getJ2();
-		Usuario j3 = p.getJ3();
-		Usuario j4 = p.getJ4();
-		
-		if (j1 != null) labelJogador1.setText(Usuario.staticToString(j1.getUsuario(), j1.getIP(), j1.getIP()));
-		else 			labelJogador1.setText("J1 não está presente nesta partida");
-		
-		if (j2 != null) labelJogador2.setText(Usuario.staticToString(j2.getUsuario(), j2.getIP(), j2.getIP()));
-		else  			labelJogador2.setText("J2 não está presente nesta partida");
-		
-		if (j3 != null) labelJogador3.setText(Usuario.staticToString(j3.getUsuario(), j3.getIP(), j3.getIP()));
-		else 			labelJogador3.setText("J3 não está presente nesta partida");
-		
-		if (j4 != null) labelJogador4.setText(Usuario.staticToString(j4.getUsuario(), j4.getIP(), j4.getIP()));
-		else 			labelJogador4.setText("J4 não está presente nesta partida");
-		
-		trancaEscolhasDePeca();
-		
-		painel.repaint();
-	}
-	
-	private void trancaEscolhasDePeca() {
-		boolean souJ1 = euUsuario.equals(partida.getJ1());
-		boolean souJ2 = euUsuario.equals(partida.getJ2());
-		boolean souJ3 = euUsuario.equals(partida.getJ3());
-		boolean souJ4 = euUsuario.equals(partida.getJ4());
-		
-		if (souJ1 == false) {
+	public void setPecas(int jogador, int indexPeca1, int indexPeca2) {
+		System.out.println("O jogador: " + jogador + " Alterou suas pecas para: " + indexPeca1 + " " + indexPeca2);
+		if (jogador == 1) {
+			jogador1Peca1.setEnabled(true);
+			jogador1Peca2.setEnabled(true);
+			
+			listenerJ1P1.desativarEscuta();
+			listenerJ1P2.desativarEscuta();
+			
+			jogador1Peca1.setSelectedIndex(indexPeca1);
+			jogador1Peca2.setSelectedIndex(indexPeca2);
+			
+			listenerJ1P1.ativarEscuta();
+			listenerJ1P2.ativarEscuta();
+			
 			jogador1Peca1.setEnabled(false);
 			jogador1Peca2.setEnabled(false);
 			
-			jogador1Peca1.setSelectedItem(partida.getCasteloInimigo().getPeca1J1());
-			jogador1Peca2.setSelectedItem(partida.getCasteloInimigo().getPeca2J1());
+		} else if (jogador == 2) {
+			jogador2Peca1.setEnabled(true);
+			jogador2Peca2.setEnabled(true);
+			
+			listenerJ2P1.desativarEscuta();
+			listenerJ2P2.desativarEscuta();
+			
+			jogador2Peca1.setSelectedIndex(indexPeca1);
+			jogador2Peca2.setSelectedIndex(indexPeca2);
+			
+			listenerJ2P1.ativarEscuta();
+			listenerJ2P2.ativarEscuta();
+			
+			jogador2Peca1.setEnabled(false);
+			jogador2Peca2.setEnabled(false);
+		
+		} else if (jogador == 3) {
+			jogador3Peca1.setEnabled(true);
+			jogador3Peca2.setEnabled(true);
+			
+			listenerJ3P1.desativarEscuta();
+			listenerJ3P2.desativarEscuta();
+			
+			jogador3Peca1.setSelectedIndex(indexPeca1);
+			jogador3Peca2.setSelectedIndex(indexPeca2);
+			
+			listenerJ3P1.ativarEscuta();
+			listenerJ3P2.ativarEscuta();
+			
+			jogador3Peca1.setEnabled(false);
+			jogador3Peca2.setEnabled(false);
+		
+		} else if (jogador == 4) {
+			jogador4Peca1.setEnabled(true);
+			jogador4Peca2.setEnabled(true);
+			
+			listenerJ4P1.desativarEscuta();
+			listenerJ4P2.desativarEscuta();
+			
+			jogador4Peca1.setSelectedIndex(indexPeca1);
+			jogador4Peca2.setSelectedIndex(indexPeca2);
+			
+			listenerJ4P1.ativarEscuta();
+			listenerJ4P2.ativarEscuta();
+			
+			jogador4Peca1.setEnabled(false);
+			jogador4Peca2.setEnabled(false);
+		
+		}
+	
+		trancaEscolhasDePeca();
+		
+		painel.repaint();
+		
+	}
+
+	public void criarPartida(Usuario usuario, Usuario rival) {
+		this.partida = new InfoPartida(usuario, rival);
+		
+		atualizarNomesJogadores();
+		
+		painel.repaint();
+		
+	}
+
+	public void entraPartida(Usuario usuario) {
+		this.partida.adicionarJogador(usuario);
+		
+		if      (partida.getJ1().equals(usuario)) qualJogadorSou = 1;
+		else if (partida.getJ2().equals(usuario)) qualJogadorSou = 2;
+		else if (partida.getJ3().equals(usuario)) qualJogadorSou = 3;
+		else if (partida.getJ4().equals(usuario)) qualJogadorSou = 4;
+		
+		atualizarNomesJogadores();
+
+		painel.repaint();
+
+	}
+	
+	private void atualizarNomesJogadores() {
+		Usuario j1 = partida.getJ1();
+		Usuario j2 = partida.getJ2();
+		Usuario j3 = partida.getJ3();
+		Usuario j4 = partida.getJ4();
+		
+		jogador1Peca1.setEnabled(true);
+		jogador1Peca2.setEnabled(true);
+		
+		jogador2Peca1.setEnabled(true);
+		jogador2Peca2.setEnabled(true);
+		
+		jogador3Peca1.setEnabled(true);
+		jogador3Peca2.setEnabled(true);
+		
+		jogador4Peca1.setEnabled(true);
+		jogador4Peca2.setEnabled(true);
+		
+		if (j1 != null) {			
+			labelJogador1.setText(j1.toString());	
+			
+		} else { 			
+			labelJogador1.setText("J1 não está presente nesta partida");
+			jogador1Peca1.setSelectedIndex(0);
+			jogador1Peca2.setSelectedIndex(1);
+		}
+		
+		if (j2 != null) {
+			labelJogador2.setText(j2.toString());	
+			
+		} else { 			
+			labelJogador2.setText("J2 não está presente nesta partida");
+			jogador1Peca1.setSelectedIndex(0);
+			jogador1Peca2.setSelectedIndex(1);
+			
+		}
+		
+		if (j3 != null) {
+			labelJogador3.setText(j3.toString());						
+		
+		} else { 			
+			labelJogador3.setText("J3 não está presente nesta partida");
+			jogador1Peca1.setSelectedIndex(0);
+			jogador1Peca2.setSelectedIndex(1);
+			
+		}
+		
+		if (j4 != null) {
+			labelJogador4.setText(j4.toString());
+						
+		} else { 			
+			labelJogador4.setText("J4 não está presente nesta partida");
+			jogador1Peca1.setSelectedIndex(0);
+			jogador1Peca2.setSelectedIndex(1);
+			
+		}
+		
+		trancaEscolhasDePeca();
+	}
+	
+	public void atualizarPronto(boolean pronto, int qualJogadorSou) {
+		this.pronto[qualJogadorSou] = pronto;
+	}
+	
+	private class ListenerConectar implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			pronto[qualJogadorSou - 1] = !pronto[qualJogadorSou - 1];
+			
+			ControladorPrincipal.enviarPronto(pronto[qualJogadorSou - 1], qualJogadorSou - 1);
+			
+			int i;
+			for (i = 0; i < 4; i++) {
+				if (pronto[i] == false) {
+					if (i == 2 && partida.getJ3() == null && partida.getJ4() == null) {
+						ControladorPrincipal.iniciarPartida(true, 2);
+						
+						break;
+					}
+					else break;
+				}
+			}
+			
+			if (i == 4) {
+				ControladorPrincipal.iniciarPartida(true, 4);
+			}
+		}
+		
+	}
+	
+	
+	public void setQualJogadorSou(int numeroJogador) {
+		this.qualJogadorSou = numeroJogador;
+	}
+	
+	private void resetaPecas() {
+		listenerJ1P1.desativarEscuta();
+		listenerJ1P2.desativarEscuta();
+		
+		listenerJ2P1.desativarEscuta();
+		listenerJ2P2.desativarEscuta();
+		
+		listenerJ3P1.desativarEscuta();
+		listenerJ3P2.desativarEscuta();
+		
+		listenerJ4P1.desativarEscuta();
+		listenerJ4P2.desativarEscuta();
+		
+		jogador1Peca1.setSelectedIndex(0);
+		jogador2Peca1.setSelectedIndex(0);
+		jogador3Peca1.setSelectedIndex(0);
+		jogador4Peca1.setSelectedIndex(0);
+		
+		jogador1Peca2.setSelectedIndex(1);
+		jogador2Peca2.setSelectedIndex(1);
+		jogador3Peca2.setSelectedIndex(1);
+		jogador4Peca2.setSelectedIndex(1);
+		
+		listenerJ1P1.ativarEscuta();
+		listenerJ1P2.ativarEscuta();
+		
+		listenerJ2P1.ativarEscuta();
+		listenerJ2P2.ativarEscuta();
+	
+		listenerJ3P1.ativarEscuta();
+		listenerJ3P2.ativarEscuta();
+		
+		listenerJ4P1.ativarEscuta();
+		listenerJ4P2.ativarEscuta();
+	}
+	
+	private void trancaEscolhasDePeca() {
+		if (qualJogadorSou != 1) {
+			jogador1Peca1.setEnabled(false);
+			jogador1Peca2.setEnabled(false);
+			
 		} else {
 			jogador1Peca1.setEnabled(true);
 			jogador1Peca2.setEnabled(true);
 		}
 		
-		if (souJ2 == false) {
+		if (qualJogadorSou != 2) {
 			jogador2Peca1.setEnabled(false);
 			jogador2Peca2.setEnabled(false);
 			
-			jogador2Peca1.setSelectedItem(partida.getCasteloAliado().getPeca1J1());
-			jogador2Peca2.setSelectedItem(partida.getCasteloAliado().getPeca2J1());
 		} else {
 			jogador2Peca1.setEnabled(true);
 			jogador2Peca2.setEnabled(true);
 		}
 		
-		if (souJ3 == false) {
+		if (qualJogadorSou != 3) {
 			jogador3Peca1.setEnabled(false);
 			jogador3Peca2.setEnabled(false);
 			
-			jogador3Peca1.setSelectedItem(partida.getCasteloInimigo().getPeca1J2());
-			jogador3Peca2.setSelectedItem(partida.getCasteloInimigo().getPeca2J2());
 		} else {
 			jogador3Peca1.setEnabled(true);
 			jogador3Peca2.setEnabled(true);
 		}
 		
-		if (souJ4 == false) {
+		if (qualJogadorSou != 4) {
 			jogador4Peca1.setEnabled(false);
 			jogador4Peca2.setEnabled(false);
 			
-			jogador4Peca1.setSelectedItem(partida.getCasteloAliado().getPeca1J2());
-			jogador4Peca2.setSelectedItem(partida.getCasteloAliado().getPeca2J2());
 		} else {
 			jogador4Peca1.setEnabled(true);
 			jogador4Peca2.setEnabled(true);
 		}
 	}
 
+	public void setProntoIndex(boolean pronto, int qualJogadorSou) {
+		this.pronto[qualJogadorSou - 1] = pronto;
+	}
+	
+	public int getQualJogadorSou() {
+		return qualJogadorSou;
+	}
+	
+	public int getIndexPeca1() {
+		int index = -2;
+		
+		if 		(qualJogadorSou == 1) index = jogador1Peca1.getSelectedIndex();
+		else if (qualJogadorSou == 2) index = jogador2Peca1.getSelectedIndex();
+		else if (qualJogadorSou == 3) index = jogador3Peca1.getSelectedIndex();
+		else if (qualJogadorSou == 4) index = jogador4Peca1.getSelectedIndex();
+		
+		return index;
+	}
+	
+	public int getIndexPeca2() {
+		int index = -2;
+		
+		if 		(qualJogadorSou == 1) index = jogador1Peca2.getSelectedIndex();
+		else if (qualJogadorSou == 2) index = jogador2Peca2.getSelectedIndex();
+		else if (qualJogadorSou == 3) index = jogador3Peca2.getSelectedIndex();
+		else if (qualJogadorSou == 4) index = jogador4Peca2.getSelectedIndex();
+		
+		return index;
+	}
+	
+	public InfoPartida getInfoPartida() {
+		return partida;
+	}
+	
 	@Override
 	public JPanel getPainel() {
 		return painel;
@@ -560,7 +646,9 @@ public class PainelHubPartida implements Painel{
 	@Override
 	public void limparCampos() {
 		partida = null;
+		resetaPecas();
 	}
+
 
 	
 }

@@ -1,6 +1,7 @@
 package main;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -40,7 +41,18 @@ public class ServidorPeer extends Thread{
 	}
 	
 	public String getIp() {
-		return serverSocket.getInetAddress().getHostAddress().toString().split("/")[0];
+		
+		String retorno = null;
+		
+		try {
+		    retorno = InetAddress.getLocalHost().toString().split("/")[1];
+		    
+		} catch (IOException e) {
+			System.err.println("Ao tentar pegar o IP da maquina local");
+			e.printStackTrace();
+		}
+		
+		return retorno;
 	}
 	
 }
