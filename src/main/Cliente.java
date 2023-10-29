@@ -1,8 +1,6 @@
 package main;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -25,6 +23,8 @@ public class Cliente {
 		
 		String ipServer = null;
 		
+		// Cria as variaveis que serao utilizadas
+		// para pegar o ip, no caso.
 		Path pathfile = Path.of("logs/config.txt");
 		Properties properties = new Properties();
 		
@@ -36,6 +36,7 @@ public class Cliente {
 			System.err.println("Erro: Arquivo de config.txt não foi encontrado, o programa não executára normalmente sem ele");
 		}
 		
+		// Instancia o socket do cliente, a saida, a entrada alem de estabelecer o timer.
 		clienteSocket = new Socket (ipServer, 55555);
 		saida = new ObjectOutputStream(clienteSocket.getOutputStream());
 		entrada = new ObjectInputStream(clienteSocket.getInputStream());
@@ -57,6 +58,7 @@ public class Cliente {
 		}, 5000, 5000);
 	}
 	
+	// Metodo responsavel pelo logindo usuario.
 	public String[] loginUsuario(String usuario, String senha) throws IOException {
 		saida.writeObject(Protocolos.LOGIN.name());
 		saida.writeObject(usuario);
@@ -75,6 +77,7 @@ public class Cliente {
 		
 	}
 	
+	// Metodo responsavel por fazer o registro do usuario, alem da senha e do nome. 
 	public boolean register(String usuario, String senha, String nome) throws IOException, ClassNotFoundException {
 		saida.writeObject(Protocolos.REGISTER.name());
 		saida.writeObject(usuario);
@@ -86,18 +89,21 @@ public class Cliente {
 		return (boolean) entrada.readObject();
 	}
 	
+	// Metodo que lista os usuarios que estao online.
 	@SuppressWarnings("unchecked")
 	public ArrayList<Usuario> listarOnline() throws ClassNotFoundException, IOException {
 		saida.writeObject(Protocolos.LIST_USER_ON_LINE.name());
 		return (ArrayList<Usuario>) entrada.readObject();
 	}
 	
+	// Metodo que lista os usuarios que estao jogando.
 	@SuppressWarnings("unchecked")
 	public ArrayList<InfoPartida> listarJogando() throws ClassNotFoundException, IOException {
 		saida.writeObject(Protocolos.LIST_USER_PLAYING.name());
 		return (ArrayList<InfoPartida>) entrada.readObject();
 	}
 	
+	// Metodo que atualiza o ip.
 	public void updateIp(String ip) throws IOException {
 		saida.writeObject(Protocolos.UPDATE_IP.name());
 		saida.writeObject(ip);
@@ -108,6 +114,7 @@ public class Cliente {
 		} 
 	}
 	
+	// Metodo que atualiza a porta.
 	public void updatePort(String port) throws IOException {
 		saida.writeObject(Protocolos.UPDATE_PORT.name());
 		saida.writeObject(port);
@@ -118,11 +125,13 @@ public class Cliente {
 		}
 	}
 	
+	// Metodo que lista os usuarios que estao inativos.
 	public void ficarInativo() throws IOException, ClassNotFoundException {
 		saida.writeObject(Protocolos.VOLTAR_LIST_ONLINE.name());
 		entrada.readObject();
 	}
 	
+	// Metodo que e responsavel por criar um hub para a partida.
 	public void criarHub(InfoPartida partida) {
 		try {
 			saida.writeObject(Protocolos.GAME_HUB.name());
@@ -133,6 +142,7 @@ public class Cliente {
 		}
 	}
 	
+	// Metodo para indicar que entrou no hub.
 	public void entreiEmUmHub() {
 		try {
 			saida.writeObject(Protocolos.GAME_HUB_ENTER.name());
@@ -142,18 +152,21 @@ public class Cliente {
 		}
 	}
 	
+	// Metodo para indicar que entrou no jogo.
 	public void startJogo(InfoPartida partida) throws IOException, ClassNotFoundException {
 		saida.writeObject(Protocolos.GAME_START.name());
 		saida.writeObject(partida);
 		entrada.readObject();
 	}
 	
+	// Metodo para indicar que acabou o jogo.
 	public void finalizarJogo(InfoPartida partida) throws IOException, ClassNotFoundException {
 		saida.writeObject(Protocolos.GAME_OVER.name());
 		saida.writeObject(partida);
 		entrada.readObject();
 	}
 	
+	// Metodo para indicar que encerrou-se a conexao.
 	public void encerrarConexao() throws IOException, ClassNotFoundException {
 		saida.writeObject(Protocolos.DISCONNECT.name());
 		entrada.readObject();
@@ -164,6 +177,7 @@ public class Cliente {
 		clienteSocket.close();
 	}
 	
+	// Metodo que devolve quantos usuarios estao cadastrados.
 	public int getQtdCadastrados() throws IOException, ClassNotFoundException {
 		saida.writeObject(Protocolos.GET_QTD_CADASTRADOS.name());
 		int retorno = (int) entrada.readObject();
@@ -172,6 +186,7 @@ public class Cliente {
 		return retorno;
 	}
 	
+	// Metodo que devolve quantos usuarios estao online.
 	public int getQtdOnline() throws IOException, ClassNotFoundException {
 		saida.writeObject(Protocolos.GET_QTD_ONLINE.name());
 		int retorno = (int) entrada.readObject();
@@ -180,11 +195,13 @@ public class Cliente {
 		return retorno;
 	}
 	
+	// Metodo que devolve quantos usuarios estao jogando.
 	public int getQtdJogando() throws IOException, ClassNotFoundException {
 		saida.writeObject(Protocolos.GET_QTD_JOGANDO.name());
 		return (int) entrada.readObject();
 	}
 	
+	// Metodo que envia mensagens para verificar a conexao.
 	public void enviarMsg(String m) throws IOException, ClassNotFoundException {
 		saida.writeObject("Msg");
 		saida.writeObject(m);

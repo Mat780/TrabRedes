@@ -24,6 +24,7 @@ public class ClientePeer {
 	private boolean isJogando = false;
 	private boolean enviandoMsg = false;
 	
+	// ClientePeer sera responsavel por varios usuarios.
 	public ClientePeer() {
 		vetorUsuarios = new ArrayList<>();
 		vetorSockets  = new ArrayList<>();
@@ -32,6 +33,8 @@ public class ClientePeer {
 		vetorTimers   = new ArrayList<>();
 	}
 	
+	// Metodo que devolve se pode comecar a partida, ja que ha uma comunicacao
+	// entre os usuarios ate a resposta do ACK ser verdadeira.
 	public boolean convidarPartida(Usuario euUsuario) {
 		enviandoMsg = true;
 		
@@ -70,6 +73,7 @@ public class ClientePeer {
 		return vamoJogar;
 	}
 	
+	// Metodo responsavel por finalizar a partida.
 	public void finalizarPartida() throws IOException, ClassNotFoundException {
 		enviandoMsg = true;
 		isJogando = false;
@@ -80,6 +84,7 @@ public class ClientePeer {
 		enviandoMsg = false;
 	}
 	
+	// Metodo responsavel por cancelar a partida.
 	public void cancelarPartida() {
 		enviandoMsg = true;
 		isJogando = false;
@@ -90,6 +95,7 @@ public class ClientePeer {
 		JOptionPane.showMessageDialog(null, "Algum dos jogadores acabou perdendo a conexao, não será possivel continuar a partida", "Erro: Perda de conexao", JOptionPane.ERROR_MESSAGE);
 	}
 	
+	// Metodo que envia a jogada de determinado usuario com as suas informacoes (passadas por parametro).
 	public void enviarJogada(int energiaEsq, int expEsq, int energiaDir, int expDir, int muro, int qualJogadorSou) throws IOException, ClassNotFoundException {
 		enviandoMsg = true;
 		for (int i = 0; i < vetorSockets.size(); i++) {
@@ -117,6 +123,7 @@ public class ClientePeer {
 		enviandoMsg = false;
 	}
 	
+	// Metodo que envia pronto especifico de cada jogador para a partida.
 	public void enviarPronto(boolean pronto, int qualJogadorSou) throws IOException {
 		enviandoMsg = true;
 		for (int i = 0; i < vetorSockets.size(); i++) {
@@ -127,6 +134,7 @@ public class ClientePeer {
 		enviandoMsg = false;
 	}
 	
+	// Metodo que atualiza as pecas especificas de cada jogador.
 	public void atualizarPecas(int jogador, int indexPeca1, int indexPeca2) throws IOException, ClassNotFoundException {
 		enviandoMsg = true;
 		for (int i = 0; i < vetorSockets.size(); i++) {
@@ -141,6 +149,7 @@ public class ClientePeer {
 		enviandoMsg = false;
 	}
 	
+	// Metodo que inicia partida.
 	public void iniciarPartida(int qtdJogadores) throws IOException {
 		enviandoMsg = true;
 		isJogando = true;
@@ -151,6 +160,7 @@ public class ClientePeer {
 		enviandoMsg = false;
 	}
 	
+	// Metodo que indica a peca especifica de cada jogador.
 	public void mostrarMinhaPeca(int qualJogadorSou, int indexPeca1, int indexPeca2, int qtdJogadores) throws IOException, ClassNotFoundException {
 		enviandoMsg = true;
 		for (int i = 0; i < vetorSockets.size(); i++) {
@@ -166,6 +176,8 @@ public class ClientePeer {
 		enviandoMsg = false;
 	}
 	
+	// Metodo que adiciona uma conexao por meio de socket. Inclusive possui
+	// um timer para verificar o tempo da comunicacao.
 	public boolean adicionarConexao(Usuario usuario) {
 		
 		String ip = usuario.getIP();
@@ -210,6 +222,7 @@ public class ClientePeer {
 		return true;
 	}
 	
+	// Metodo que encerra a conexao.
 	public void encerrarConexao(Usuario usuario) {
 		int index = vetorUsuarios.indexOf(usuario);
 		vetorTimers.get(index).cancel();
@@ -227,6 +240,7 @@ public class ClientePeer {
 		vetorSaida.remove(index);
 	}
 	
+	// Metodo que encerra todas as conexoes utilizando o metodo anterior.
 	public void encerrarTodasAsConexoes() {
 		for (int i = vetorSockets.size() - 1; i > -1; i--) {
 			encerrarConexao(vetorUsuarios.get(i));

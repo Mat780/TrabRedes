@@ -1,5 +1,7 @@
 package main;
 
+// Enum dos protocolos utilizados durante as diferentes
+// arquiteturas de aplicacao.
 public enum Protocolos {
 	LOGIN, 				// Somente Cliente/Servidor
 	REGISTER, 			// Somente Cliente/Servidor

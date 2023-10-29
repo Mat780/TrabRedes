@@ -27,6 +27,7 @@ public class IDsESenhas {
 	
 	private IDsESenhas() {} // Construtor Inexistente
 	
+	// Metodo que permite a exclusao mutua para o registro dos usuarios.
 	public static synchronized boolean register(String usuario, String senha, String nome, String ip, String port) throws IOException {
 		
 		boolean isUsuarioCadastrado = (jogadoresRegistrados.get(usuario)) != null;
@@ -54,6 +55,7 @@ public class IDsESenhas {
 		return true;
 	}
 	
+	// Metodo que permite a exclusao mutua para o login dos usuarios.
 	public static synchronized String[] login(String usuario, String senha) throws IOException {
 		
 		String[] cadastro = jogadoresRegistrados.get(usuario);
@@ -77,18 +79,21 @@ public class IDsESenhas {
 		else return senhaIncorreta;
 	}
 	
+	// Metodo que permite a exclusao mutua para a atualizacao dos ips.
 	public static synchronized void updateIp(String usuario, String ip) {
 		String[] infoUsr = jogadoresOnline.get(usuario);
 		infoUsr[2] = ip;
 		jogadoresOnline.put(usuario, infoUsr);
 	}
 	
+	// Metodo que permite a exclusao mutua para a atualizacao das portas.
 	public static synchronized void updatePort(String usuario, String port) {
 		String[] infoUsr = jogadoresOnline.get(usuario);
 		infoUsr[3] = port;
 		jogadoresOnline.put(usuario, infoUsr);
 	}
 
+	// Metodo que permite a exclusao mutua para a verificacao de um usuario inativo.
 	public static synchronized void ficarInativo(Usuario usuario) throws IOException {
 		String[] info = jogadoresJogando.remove(usuario.getUsuario());
 		
@@ -97,6 +102,7 @@ public class IDsESenhas {
 		makeLog("Usuario " + usuario.getUsuario() + " tornou-se INATIVO");
 	}
 	
+	// Metodo que permite a exclusao mutua para a desconexao.
 	public static synchronized void disconnect(Usuario usuario, boolean isDead) {
 		
 		String usrUsuario = usuario.getUsuario();
@@ -129,6 +135,7 @@ public class IDsESenhas {
 		jogadoresJogando.remove(usuario.getUsuario());
 	}
 	
+	// Metodo que permite a exclusao mutua para a atualizacao do cadastro.
 	public static synchronized void refreshCadastro() throws FileNotFoundException {
 		BufferedReader leitor = new BufferedReader(new FileReader(filepath));
 		
@@ -152,11 +159,13 @@ public class IDsESenhas {
 
 	}
 	
+	// Metodo que permite a exclusao mutua para a criacao do hub.
 	public static synchronized void criarHub(InfoPartida partida, Usuario usuario) {
 		estouEntrandoEmUmHub(usuario);
 		partidasEmAndamento.add(partida);
 	}
 	
+	// Metodo que permite a exclusao mutua para a verificacao de que um usuario esta em um hub.
 	public static synchronized void estouEntrandoEmUmHub(Usuario usuario) {
 		String[] infoUsr = jogadoresRegistrados.get(usuario.getUsuario());
 		jogadoresJogando.put(usuario.getUsuario(), infoUsr);
@@ -169,6 +178,7 @@ public class IDsESenhas {
 		}
 	}
 	
+	// Metodo que permite a exclusao mutua para a inicializacao da partida.
 	public static synchronized void startPartida(InfoPartida partida) throws IOException {
 		
 		String str1 = partida.getJ1().getUsuario();
@@ -186,6 +196,7 @@ public class IDsESenhas {
 				
 	}
 	
+	// Metodo que permite a exclusao mutua para a finalizacao da partida.
 	public static synchronized void finalizarPartida(InfoPartida partida, Usuario usuario) throws IOException {
 		partidasEmAndamento.remove(partida);
 		
@@ -198,6 +209,7 @@ public class IDsESenhas {
 		
 	}
 	
+	// Metodo que permite a exclusao mutua para a listagem dos usuarios online.
 	public static synchronized ArrayList<Usuario> listOnline() throws UnknownHostException {
 		ArrayList<Usuario> arrayUsuarios = new ArrayList<>();
 		for (Entry<String, String[]> entry : jogadoresOnline.entrySet()) {
@@ -207,6 +219,7 @@ public class IDsESenhas {
 		return arrayUsuarios;
 	}
 	
+	// Metodo que permite a exclusao mutua para a listagem dos usuarios jogando.
 	public static synchronized ArrayList<InfoPartida> listJogando() {
 		return partidasEmAndamento;
 	}
@@ -223,6 +236,7 @@ public class IDsESenhas {
 		return jogadoresJogando.size();
 	}
 	
+	// Metodo que permite a exclusao mutua para a criacao do log.
 	private static synchronized void makeLog(String msg) throws IOException {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");  
 	    LocalDateTime now = LocalDateTime.now(); 
