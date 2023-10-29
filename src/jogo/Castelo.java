@@ -87,6 +87,9 @@ public class Castelo implements Serializable {
 		return peca2J2;
 	}
 	
+	// Define, no castelo, quem vai atacar (isso no caso dos
+	// 2 metodos troca) para nao houver um conflito e nem
+	// deadlock.
 	public void trocaPecasJ1(Peca p1, Peca p2) {
 		setPeca1J1(p1);
 		setPeca2J1(p2);
