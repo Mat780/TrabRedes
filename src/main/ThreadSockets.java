@@ -20,6 +20,7 @@ public class ThreadSockets extends Thread {
 		
 	}
 	
+	// Metodo em que roda um determinado protocolo correspondente ao que esta true.
 	@Override
 	public void run() {
 		boolean online = true;

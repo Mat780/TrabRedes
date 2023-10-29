@@ -20,6 +20,7 @@ public class ServidorPeer extends Thread{
 		this.usuario.setPort(getPort());
 	}
 	
+	// Metodo que implementa a inicializacao das threads do server.
 	@Override
 	public void run() {
 		

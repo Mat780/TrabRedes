@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 
 public class Usuario implements Serializable{
 	
+	// Atributos de cada usuario.
 	private static final long serialVersionUID = -8612276964266109729L;
 	
 	protected String nome;
@@ -22,6 +23,7 @@ public class Usuario implements Serializable{
 		setPort(port);
 	}
 	
+	// Sets e gets respectivos aos atributos nao estaticos.
 	private void setNome(String nome) {
 		this.nome = nome;
 	}
@@ -67,6 +69,7 @@ public class Usuario implements Serializable{
 		return usuario + " IP: " + ip + " Port: " + port;
 	}
 	
+	// Metodos toString para retornar o usuario, o ip e a porta.
 	@Override
 	public String toString() {
 		return "Usuario: " + usuario + " IP: " + ip + " Port: " + port;

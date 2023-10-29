@@ -23,6 +23,8 @@ public class ThreadServerPeer extends Thread {
 		this.socket = socket;
 	}
 	
+	// Metodo que faz parte do server, como uma thread, rodando a
+	// conexao, se nao, encerra.
 	@Override
 	public void run() {
 		try {
@@ -47,6 +49,7 @@ public class ThreadServerPeer extends Thread {
 		
 	}
 	
+	// Metodo que fecha a conexao.
 	private void fecharConexao() {
 		try {
 			if (socket.isClosed() == false) socket.close();
@@ -55,6 +58,7 @@ public class ThreadServerPeer extends Thread {
 		}
 	}
 	
+	// Metodo que trata a conexao.
 	private void tratarConexao(String protocolo) throws ClassNotFoundException, IOException {
 		if (protocolo.equals(Protocolos.GAME_INI.name())) {
 			

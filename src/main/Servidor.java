@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 public class Servidor {
 	
+	// Maindo servidor do qual permanece sempre ativo (while(true)).
 	public static void main(String[] args) throws IOException, InterruptedException {
 		ServerSocket servidorSocket = new ServerSocket(55555);
 		
