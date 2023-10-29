@@ -1,5 +1,6 @@
 package jogo;
 
+// Enum para os objetos que aparecem na roleta.
 public enum enumItensDaRoleta {
 	MANA,
 	MANA_EXP,

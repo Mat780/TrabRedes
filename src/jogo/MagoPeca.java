@@ -1,7 +1,5 @@
 package jogo;
 
-import javax.swing.JOptionPane;
-
 import controladoras.ControladorPrincipal;
 
 public class MagoPeca extends Peca {
@@ -14,6 +12,7 @@ public class MagoPeca extends Peca {
 		super(2, 2, 0, 0, 5);
 	}
 	
+	// Metodo responsavel pelo ataque da peca com as suas caracteristicas de ataque.
 	@Override
 	public void atacar(Castelo casteloInimigo, String jogador) {
 		if (getQuandoAtacar() - getEnergia() <= 0) {
@@ -43,11 +42,14 @@ public class MagoPeca extends Peca {
 		}
 	}
 	
+	// Metodo responsavel pela defesa que esta peca nao possui como caracteristica.
 	@Override
 	public void defender(Castelo casteloAliado, String jogador) {
 		// Mago não defende
 	}
 	
+	// Metodo responsavel por aumentar o nivel setando valores dos atributos quando
+	// corresponde as caracteristicas definidas no documento.
 	@Override
 	public void aumentarNivel(Castelo casteloInimigo, String jogador) {
 		
@@ -76,16 +78,19 @@ public class MagoPeca extends Peca {
 		
 	}
 	
+	// Metodo que clona a peca.
 	@Override
 	public Peca clonarPeca() {
 		return new MagoPeca();
 	}
 	
+	// Metodo toString para especificar a peca.
 	@Override
 	public String toString() {
 		return "Mago";
 	}
-
+	
+	// Metodo para pegar o id da peca.
 	@Override
 	public int getID() {
 		return id;
