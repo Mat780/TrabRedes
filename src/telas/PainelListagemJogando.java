@@ -50,23 +50,27 @@ public class PainelListagemJogando implements Painel{
 		painelBotoes.setBackground(Color.LIGHT_GRAY);
 		painelBotoes.setLayout(new GridLayout(0, 2, 80, 0));
 		
+		// Definindo o botao de conectar e suas propriedades.
 		botaoConectar = new JButton("Conectar");
 		botaoConectar.setFont(new Font("Arial", Font.PLAIN, 18));
 		botaoConectar.addActionListener(e -> {
 			//TODO
 		});
 		
+		// Definindo o botao de atualizar e suas propriedades.
 		botaoAtualizar = new JButton("Atualizar");
 		botaoAtualizar.setFont(new Font("Arial", Font.PLAIN, 18));
 		botaoAtualizar.addActionListener(e -> 
 			atualizarLista()
 		);
 		
+		// Adicionando os botoes ao painel de botoes.
 		painelBotoes.add(botaoConectar);
 		painelBotoes.add(botaoAtualizar);
 		
 		JScrollPane painelComScroll = new JScrollPane();
 		
+		// Setando a forma, os componentes deste painel.
 		JPanel painelLabels = new JPanel();
 		painelLabels.setBorder(new EmptyBorder(0, 10, 0, 0));
 		painelLabels.setBackground(new Color(150, 150, 150));
@@ -93,10 +97,12 @@ public class PainelListagemJogando implements Painel{
 		);
 		painelLabels.setLayout(new GridLayout(0, 2, 50, 0));
 		
+		// Definindo e atribuindo as propriedades de "online".
 		labelOnline = new JLabel("Online: ");
 		painelLabels.add(labelOnline);
 		labelOnline.setFont(new Font("Arial", Font.BOLD, 18));
 		
+		// Definindo e atribuindo as propriedades de "jogando".
 		labelJogando = new JLabel("Jogando:");
 		labelJogando.setFont(new Font("Arial", Font.BOLD, 18));
 		painelLabels.add(labelJogando);
@@ -106,6 +112,8 @@ public class PainelListagemJogando implements Painel{
 		painelDelimitador.setLayout(gl_painelDelimitador);
 	}
 	
+	// Metodo que atualiza lista dos usuarios mediante se estao jogando
+	// ou se estao simplesmente online.
 	private void atualizarLista() {
 		listaPartidas.clear();
 		
@@ -120,17 +128,18 @@ public class PainelListagemJogando implements Painel{
 			e.printStackTrace();
 		}
 		
-		// Após a att é precisa setar novamente
 		listaNoPainel.setModel(listaPartidas);
 		listaNoPainel.repaint();
 	}
 	
+	// Metodo atualiza a lista e retorna painel. 
 	@Override
 	public JPanel getPainel() {
 		atualizarLista();
 		return painel;
 	}
-
+	
+	// Metodo responsavel por limpar os campos.
 	@Override
 	public void limparCampos() {
 		listaPartidas.removeAllElements();

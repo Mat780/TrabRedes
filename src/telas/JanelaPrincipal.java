@@ -40,6 +40,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 	
 	private boolean isJogando = false;
 	
+	// Definicao e configuracao da JanelaPrincipal.
 	public JanelaPrincipal(Cliente cliente) {
 		super();
 		setSize(new Dimension(800, 600));
@@ -74,6 +75,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		ativarMenuBar();
 	}
 	
+	// Metodo que configura as telas e e chamado no construtor.
 	private void configuraTelas() {
 		vetorPainel = new ArrayList<>();
 		vetorPainel.add(new PainelListagemOnline(cliente));
@@ -82,6 +84,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		vetorPainel.add(new PainelJogo());
 	}
 	
+	// Listener para trocar painel.
 	public class ListenerTrocaPainel implements ActionListener {
 
 		private Painel painelDestino;
@@ -99,6 +102,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		
 	}
 	
+	// Metodo responsavel por trocar o painel.
 	public void trocaPainel(Painel p) {
 		
 		if (painelAtual != null) {
@@ -129,20 +133,23 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		setVisible(true);
 	}
 
-	
+	// Metodo responsavel por retornar pra o painel online.
 	public void retornaPainelOnline() {
 		isJogando = false;
 		trocaPainel(vetorPainel.get(0));
 	}
 	
+	// Metodo que ativa o MenuBar.
 	public void ativarMenuBar() {
 		setJMenuBar(menuBar);
 	}
 	
+	// Metodo que desativa o MenuBar.
 	public void desativarMenuBar() {
 		setJMenuBar(null);
 	}
 	
+	// Metodo que cria o hub partida na janela principal.
 	public void criarHubPartida(Usuario usuario, Usuario rival) {
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelHubPartida) {
@@ -153,6 +160,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		}
 	}
 	
+	// Metodo que atualiza as pecas.
 	public void atualizarPecas(int jogador, int indexPeca1, int indexPeca2) {
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelHubPartida) {
@@ -162,6 +170,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		}
 	}
 	
+	// Metodo que atualiza o pronto.
 	public void atualizarPronto(boolean pronto, int qualJogadorSou) {
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelHubPartida) {
@@ -171,6 +180,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		}
 	}
 	
+	// Metodo que retorna as informacoes para inicar partida.
 	public int[] getInfoStartPartida() {
 		int[] info = {-1, -1, -1};
 		for (int i = 0; i < vetorPainel.size(); i++) {
@@ -186,7 +196,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		return info;
 	}
 	
-
+	// Metodo que retorna as informacoes da partida.
 	public InfoPartida getInfoPartida() {
 		InfoPartida info = null;
 		
@@ -201,6 +211,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		return info;
 	}
 	
+	// Metodo que e responsavel por iniciar a peca da partida.
 	public void iniciarPecaDaPartida(int qualJogadorSou, int indexPeca1, int indexPeca2, int qtdJogadores) {
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelJogo) {
@@ -213,6 +224,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		
 	}
 	
+	// Seta qual e o jogador.
 	public void setQualJogadorSou(int qualJogadorSou) {
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelHubPartida) {
@@ -222,6 +234,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		}
 	}
 	
+	// Metodo do qual o jogador recebe a jogada.
 	public void receberJogada(int energiaEsq, int expEsq, int energiaDir, int expDir, int muro, int qualJogadorSou) {
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelJogo) {
@@ -231,6 +244,7 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		}
 	}
 	
+	// Metodo que recebe o pronto.
 	public void receberPronto(boolean pronto, int qualJogadorSou) {
 		for (int i = 0; i < vetorPainel.size(); i++) {
 			if (vetorPainel.get(i) instanceof PainelHubPartida) {
@@ -244,11 +258,13 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		return vetorPainel;
 	}
 
+	// Sem implementacao quando a janela esta aberta.
 	@Override
 	public void windowOpened(WindowEvent e) {
 		// Vazio		
 	}
 
+	// Metodo que encerra as conexoes quando a janela fecha.
 	@Override
 	public void windowClosing(WindowEvent e) {
 		try {
@@ -265,28 +281,33 @@ public class JanelaPrincipal extends JFrame implements WindowListener{
 		} 
 		
 	}
-
+	
+	// Ocorre nada se ja foi fechada.
 	@Override
 	public void windowClosed(WindowEvent e) {
 		// Vazio		
 	}
 
+	// Ocorre nada se a janela foi minimizada.
 	@Override
 	public void windowIconified(WindowEvent e) {
 		// Vazio		
 	}
 
+	// Ocorre nada se a janela foi desminimizada.
 	@Override
 	public void windowDeiconified(WindowEvent e) {
 		// Vazio		
 	}
 
+	// Ocorre nada se a janela foi ativada para renderizacao.
 	@Override
-	public void windowActivated(WindowEvent e) {
+	public void windowActivated(WindowEvent e) { 
 		// Vazio
 		
 	}
 
+	// Ocorre nada se a janela foi desativada para renderizacao.
 	@Override
 	public void windowDeactivated(WindowEvent e) {
 		// Vazio

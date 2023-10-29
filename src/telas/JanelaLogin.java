@@ -57,29 +57,34 @@ public class JanelaLogin extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		
+		// Tenta instanciar cliente.
 		try {
 			cliente = new Cliente();
 		} catch (IOException e) {
 			System.out.println("O cliente não conseguiu ser criado");
 			e.printStackTrace();
 		}
+		
+		// Instancia painel e define caracteristicas.
 		painel = new JPanel();
 		
 		String fontLabel = "Arial Black";
 		Font fontInput = new Font("Arial", Font.PLAIN, 18);
 		
-		JLabel labelTitulo = new JLabel("DEFENDA O REI");
+		JLabel labelTitulo = new JLabel("DEFENDA O REI"); // Titulo do jogo.
 		labelTitulo.setBounds(100, 37, 561, 88);
 		labelTitulo.setHorizontalAlignment(SwingConstants.CENTER);
 		labelTitulo.setFont(new Font(fontLabel, Font.PLAIN, 50));
 		
 		getContentPane().add(painel);
 		
+		// Define como os botoes serao.
 		painelBotoes = new JPanel();
 		painelBotoes.setBounds(169, 414, 430, 113);
 		painelBotoes.setBorder(new EmptyBorder(10, 0, 10, 0));
 		painelBotoes.setLayout(new GridLayout(0, 2, 60, 0));
 		
+		// Fazendo os recursos para entrar.
 		botaoEntrar = new JButton("ENTRAR");
 		painelBotoes.add(botaoEntrar);
 		botaoEntrar.addActionListener(e -> {
@@ -111,6 +116,7 @@ public class JanelaLogin extends JFrame {
 		botaoEntrar.setFont(new Font("Arial Black", Font.PLAIN, 22));
 		botaoEntrar.setBackground(new Color(128, 255, 128));
 		
+		// Definindo o botao de Registrar e suas propriedades.
 		botaoRegistrar = new JButton("REGISTRAR");
 		botaoRegistrar.addActionListener(e -> trocarEntreLoginERegistro());
 		painelBotoes.add(botaoRegistrar);
@@ -121,6 +127,7 @@ public class JanelaLogin extends JFrame {
 		painel.add(labelTitulo);
 		painel.add(painelBotoes);
 		
+		// Definindo os inputs.
 		painelInputs = new JPanel();
 		painelInputs.setBounds(85, 158, 604, 245);
 		painel.add(painelInputs);
@@ -135,6 +142,7 @@ public class JanelaLogin extends JFrame {
 		painelNomeDeUsuario.add(labelNomeDeUsuario);
 		labelNomeDeUsuario.setFont(new Font(fontLabel, Font.PLAIN, 18));
 		
+		// Atribuindo as propriedades e os inputs a variavel correspondente.
 		inputNomeDeUsuario = new JTextField();
 		inputNomeDeUsuario.setBounds(10, 36, 584, 28);
 		painelNomeDeUsuario.add(inputNomeDeUsuario);
@@ -178,6 +186,7 @@ public class JanelaLogin extends JFrame {
 		painel.add(painelTerminarRegistro);
 		painelTerminarRegistro.setLayout(new GridLayout(0, 1, 60, 0));
 		
+		// Botao e listener para terminar cadastro.
 		botaoTerminarCadastro = new JButton("Terminar Cadastro");
 		botaoTerminarCadastro.addActionListener(e -> {
 			
@@ -223,6 +232,7 @@ public class JanelaLogin extends JFrame {
 		
 	}
 	
+	// Metodo responsavel trocar entre login e registro.
 	private void trocarEntreLoginERegistro() {
 		if (painelBotoes.isVisible()) {
 			painelBotoes.setVisible(false);
