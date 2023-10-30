@@ -86,7 +86,7 @@ public class PainelHubPartida implements Painel{
 			new ConstrutorPeca()	// 5
 	};
 	
-	
+	// Construtor do PainelHubPartida.
 	public PainelHubPartida() {
 		painel = new JPanel();
 		painel.setBackground(Color.GRAY);
@@ -95,6 +95,7 @@ public class PainelHubPartida implements Painel{
 		
 		partida = new InfoPartida(null, null);
 		
+		// Definindo os paineis com suas propriedades.
 		JPanel painelDelimitador = new JPanel();
 		painelDelimitador.setBorder(new EmptyBorder(10, 20, 10, 20));
 		painelDelimitador.setForeground(new Color(0, 0, 0));
@@ -106,6 +107,7 @@ public class PainelHubPartida implements Painel{
 		painelBotoes.setBackground(Color.LIGHT_GRAY);
 		painelBotoes.setLayout(new GridLayout(0, 1, 80, 0));
 		
+		// Definindo o botaoConectar com suas propriedades e "Estou pronto!".
 		botaoConectar = new JButton("Estou pronto!");
 		botaoConectar.setFont(new Font("Arial", Font.PLAIN, 18));
 		botaoConectar.addActionListener(new ListenerConectar());
@@ -137,6 +139,7 @@ public class PainelHubPartida implements Painel{
 		);
 		painelTimes.setLayout(new GridLayout(2, 0, 0, 0));
 		
+		// Definindo os paineis em relacao ao time azul.
 		painelTimeAzul = new JPanel();
 		painelTimes.add(painelTimeAzul);
 		
@@ -213,6 +216,8 @@ public class PainelHubPartida implements Painel{
 		);
 		painelTimeAzul.setLayout(gl_painelTimeAzul);
 		
+		// Definindo os paineis em relacao ao time vermelho.
+		// Levando em consideracao que ha implementacao para 4 jogadores.
 		painelTimeVermelho = new JPanel();
 		painelTimes.add(painelTimeVermelho);
 		
@@ -299,6 +304,7 @@ public class PainelHubPartida implements Painel{
 		private boolean souBox1;
 		private boolean possoEscutar;
 		
+		// Construtor do ListenerJComboBox com as pecas e quem sou.
 		public ListenerJComboBox(JComboBox<Peca> box1, JComboBox<Peca> box2, boolean souBox1) {
 			this.box1 = box1;
 			this.box2 = box2;
@@ -306,6 +312,7 @@ public class PainelHubPartida implements Painel{
 			this.possoEscutar = true;
 		}
 		
+		// Metodo especifico para escolher as pecas no hub antes da partida.
 		@Override
 		public synchronized void actionPerformed(ActionEvent e) {
 			int indexPeca1 = box1.getSelectedIndex();
@@ -327,16 +334,19 @@ public class PainelHubPartida implements Painel{
 			} 
 		}
 		
+		// Metodo que desativa o "ouvido".
 		public void desativarEscuta() {
 			this.possoEscutar = false;
 		}
 		
+		// Metodo que ativa o "ouvido".
 		public void ativarEscuta() {
 			this.possoEscutar = true;
 		}
 		
 	}
 	
+	// Metodo responsavel por setar as pecas de acordo com suas pecas.
 	public void setPecas(int jogador, int indexPeca1, int indexPeca2) {
 		System.out.println("O jogador: " + jogador + " Alterou suas pecas para: " + indexPeca1 + " " + indexPeca2);
 		if (jogador == 1) {
@@ -405,12 +415,13 @@ public class PainelHubPartida implements Painel{
 		
 		}
 	
-		trancaEscolhasDePeca();
+		trancaEscolhasDePeca(); // Define as pecas.
 		
 		painel.repaint();
 		
 	}
 
+	// Metodo responsavel por criar uma partida entre um usuario e outro.
 	public void criarPartida(Usuario usuario, Usuario rival) {
 		this.partida = new InfoPartida(usuario, rival);
 		
@@ -420,6 +431,7 @@ public class PainelHubPartida implements Painel{
 		
 	}
 
+	// Metodo responsavel pelos usuarios entrarem na partida especifica de cada.
 	public void entraPartida(Usuario usuario) {
 		this.partida.adicionarJogador(usuario);
 		
@@ -434,6 +446,8 @@ public class PainelHubPartida implements Painel{
 
 	}
 	
+	// Metodo que atualiza o nome dos jogadores e e
+	// chamado nas funcoes anteriores.
 	private void atualizarNomesJogadores() {
 		Usuario j1 = partida.getJ1();
 		Usuario j2 = partida.getJ2();
@@ -494,23 +508,26 @@ public class PainelHubPartida implements Painel{
 		trancaEscolhasDePeca();
 	}
 	
+	// Metodo que atualiza o pronto de acordo com o jogador.
 	public void atualizarPronto(boolean pronto, int qualJogadorSou) {
 		this.pronto[qualJogadorSou] = pronto;
 	}
 	
+	// Fazendo um listener para conectar jogadores.
 	private class ListenerConectar implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			
 			pronto[qualJogadorSou - 1] = !pronto[qualJogadorSou - 1];
 			
+			// Enviando o pronto.
 			ControladorPrincipal.enviarPronto(pronto[qualJogadorSou - 1], qualJogadorSou - 1);
 			
 			int i;
 			for (i = 0; i < 4; i++) {
 				if (pronto[i] == false) {
 					if (i == 2 && partida.getJ3() == null && partida.getJ4() == null) {
-						ControladorPrincipal.iniciarPartida(true, 2);
+						ControladorPrincipal.iniciarPartida(true, 2); // Iniciar partida com 2 jogadores.
 						
 						break;
 					}
@@ -519,17 +536,18 @@ public class PainelHubPartida implements Painel{
 			}
 			
 			if (i == 4) {
-				ControladorPrincipal.iniciarPartida(true, 4);
+				ControladorPrincipal.iniciarPartida(true, 4); // Aqui, no caso, 4.
 			}
 		}
 		
 	}
 	
-	
+	// Seta qual e o jogador mediante o seu numero.
 	public void setQualJogadorSou(int numeroJogador) {
 		this.qualJogadorSou = numeroJogador;
 	}
 	
+	// Metodo privado para resetar as pecas de cada jogador.
 	private void resetaPecas() {
 		listenerJ1P1.desativarEscuta();
 		listenerJ1P2.desativarEscuta();
@@ -566,6 +584,8 @@ public class PainelHubPartida implements Painel{
 		listenerJ4P2.ativarEscuta();
 	}
 	
+	// Metodo que estabelece em definitivo a peca do jogador,
+	// isto e, tranca a sua escolha.
 	private void trancaEscolhasDePeca() {
 		if (qualJogadorSou != 1) {
 			jogador1Peca1.setEnabled(false);
@@ -604,10 +624,12 @@ public class PainelHubPartida implements Painel{
 		}
 	}
 
+	// Seta o pronto utilizando qual jogador.
 	public void setProntoIndex(boolean pronto, int qualJogadorSou) {
 		this.pronto[qualJogadorSou - 1] = pronto;
 	}
 	
+	// Metodos de get.
 	public int getQualJogadorSou() {
 		return qualJogadorSou;
 	}
@@ -643,6 +665,7 @@ public class PainelHubPartida implements Painel{
 		return painel;
 	}
 
+	// Metodo sobrescrito para limpar os campos da partida.
 	@Override
 	public void limparCampos() {
 		partida = null;
