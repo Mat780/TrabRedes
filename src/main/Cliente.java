@@ -1,8 +1,6 @@
 package main;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -25,7 +23,7 @@ public class Cliente {
 		
 		String ipServer = null;
 		
-		Path pathfile = Path.of("logs/config.txt");
+		Path pathfile = Path.of("logs/configuracao.txt");
 		Properties properties = new Properties();
 		
 		try {

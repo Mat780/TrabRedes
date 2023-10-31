@@ -1,9 +1,11 @@
 package main;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
 
 
 public class ServidorPeer extends Thread{
@@ -20,6 +22,7 @@ public class ServidorPeer extends Thread{
 		this.usuario.setPort(getPort());
 	}
 	
+	// Metodo que implementa a inicializacao das threads do server.
 	@Override
 	public void run() {
 		
@@ -45,7 +48,11 @@ public class ServidorPeer extends Thread{
 		String retorno = null;
 		
 		try {
-		    retorno = InetAddress.getLocalHost().toString().split("/")[1];
+			Path pathfile = Path.of("logs/configuracao.txt");
+			Properties properties = new Properties();
+			
+			properties.load(Files.newBufferedReader(pathfile));
+			retorno = properties.getProperty("CLIENT_IP");
 		    
 		} catch (IOException e) {
 			System.err.println("Ao tentar pegar o IP da maquina local");
