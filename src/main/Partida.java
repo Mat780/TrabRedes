@@ -92,6 +92,7 @@ public class Partida implements Serializable {
 		return casteloInimigo;
 	}
 	
+	// Metodo que adiciona o jogador da partida mediante o parametro.
 	public void adicionarJogador(Usuario j) throws ExcecaoPartidaCheia {
 		
 		if (jogador1 == null) { 
@@ -110,6 +111,7 @@ public class Partida implements Serializable {
 		
 	}
 	
+	// Metodo que retira o usuario.
 	public void retirarJogador(Usuario j) {
 		if (jogador4.equals(j)) setJ4(null);
 		else if (jogador3.equals(j)) setJ3(null);

@@ -12,6 +12,7 @@ public class RoletaItems {
 		setItemDaRoleta(itemDaRoleta);
 	}
 	
+	// Estabelece a "mesma imagem" para quando e escolhida (travada) ou nao.
 	private void setIcone(String icone) {
 		this.icone = new ImageIcon("imagens/" + icone + ".png");
 		this.iconeCheck = new ImageIcon("imagens/" + icone + "Check.png");

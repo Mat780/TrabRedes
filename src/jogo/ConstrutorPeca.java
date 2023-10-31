@@ -14,6 +14,7 @@ public class ConstrutorPeca extends Peca {
 		super(1, 3, 0, 0, 4);
 	}
 	
+	// Metodo responsavel pelo ataque da peca com as suas caracteristicas de ataque.
 	@Override
 	public void atacar(Castelo casteloInimigo, String jogador) {
 		if (getQuandoAtacar() - getEnergia() <= 0) {
@@ -33,6 +34,7 @@ public class ConstrutorPeca extends Peca {
 		}
 	}
 	
+	// Metodo responsavel pela defesa que esta peca possui como caracteristica.
 	@Override
 	public void defender(Castelo casteloAliado, String jogador) {
 		if (getQuandoAtacar() - getEnergia() <= 0) {
@@ -41,6 +43,8 @@ public class ConstrutorPeca extends Peca {
 		}		
 	}
 	
+	// Metodo responsavel por aumentar o nivel setando valores dos atributos quando
+	// corresponde as caracteristicas definidas no documento.
 	@Override
 	public void aumentarNivel(Castelo casteloInimigo, String jogador) {
 		if (getExperiencia() >= 6) {
@@ -67,16 +71,19 @@ public class ConstrutorPeca extends Peca {
 		
 	}
 	
+	// Metodo que clona a peca.
 	@Override
 	public Peca clonarPeca() {
 		return new ConstrutorPeca();
 	}
 	
+	// Metodo para pegar o id da peca.
 	@Override
 	public int getID() {
 		return id;
 	}
 	
+	// Metodo toString para especificar a peca.
 	@Override
 	public String toString() {
 		return "Construtor";

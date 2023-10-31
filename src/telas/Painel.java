@@ -6,5 +6,5 @@ import javax.swing.JMenuItem;
 
 public interface Painel {
 	public JPanel getPainel();
-	public void limparCampos();
+	public void limparCampos(); // Implementa nos filhos.
 }

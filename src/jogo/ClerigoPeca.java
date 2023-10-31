@@ -14,11 +14,15 @@ public class ClerigoPeca extends Peca {
 		super(1, 2, 0, 0, 4);
 	}
 	
+	// Metodo responsavel pelo ataque da peca com as suas caracteristicas de ataque.
+	// Contudo, o clerigo nao ataca e por isso nao esta implementado.
 	@Override
 	public void atacar(Castelo casteloInimigo, String jogador) {
 		// Clerigo não ataca
 	}
 	
+	// Metodo responsavel pela defesa que esta peca possui como caracteristica.
+	// Ocorre o mesmo que o ataque do assassino, porém para defesa.
 	@Override
 	public void defender(Castelo casteloAliado, String jogador) {
 		if (getQuandoAtacar() - getEnergia() <= 0) {
@@ -136,7 +140,7 @@ public class ClerigoPeca extends Peca {
 				}
 				
 			} else { // Codigo nunca deveria chegar aqui
-				System.out.println("Erro de implementação no clerigo"); //! Debug
+				System.out.println("Erro de implementação no clerigo");
 			}
 			
 			JOptionPane.showMessageDialog(null, msg);
@@ -147,6 +151,8 @@ public class ClerigoPeca extends Peca {
 		}
 	}
 	
+	// Metodo responsavel por aumentar o nivel setando valores dos atributos quando
+	// corresponde as caracteristicas definidas no documento.
 	@Override
 	public void aumentarNivel(Castelo casteloInimigo, String jogador) {
 		if (getExperiencia() >= 6) {
@@ -171,15 +177,18 @@ public class ClerigoPeca extends Peca {
 		}
 	}
 	
+	// Metodo que clona a peca.
 	public Peca clonarPeca() {
 		return new ClerigoPeca();
 	}
 	
+	// Metodo para pegar o id da peca.
 	@Override
 	public int getID() {
 		return id;
 	}
 	
+	// Metodo toString para especificar a peca.
 	@Override
 	public String toString() {
 		return "Clerigo";

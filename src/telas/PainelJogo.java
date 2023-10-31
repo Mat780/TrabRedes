@@ -44,7 +44,7 @@ public class PainelJogo implements Painel {
 	
 	private Partida partida = new Partida(null, null);
 	
-	// Comeca definicao dos jogadores
+	// Comeca definicao dos jogadores.
 	private boolean jogaJ1eJ2 = true;
 	private int qualJogadorSou = -1;
 	private int qtdJogadores = -1;
@@ -63,7 +63,7 @@ public class PainelJogo implements Painel {
 	private ImageIcon mago = new ImageIcon("imagens/mago.png");
 	// Finaliza definicao dos jogadores
 	
-	// Comeca definicao da roleta
+	// Comeca definicao da roleta.
 	private int moedasRestantes = 3;
 	private JLabel imgMoeda1;
 	private JLabel imgMoeda2;
@@ -84,8 +84,9 @@ public class PainelJogo implements Painel {
 	private JButton roleta5;
 	
 	private ArrayList<RoletaItems> itensDaRoleta;
-	// Termina definicao da roleta
+	// Termina definicao da roleta.
 	
+	// Da new em todas as pecas no vetor de Peca.
 	private Peca[] pecasDoJogo = {
 			new CavaleiroPeca(), 	// 0
 			new MagoPeca(), 		// 1
@@ -95,7 +96,7 @@ public class PainelJogo implements Painel {
 			new ConstrutorPeca()	// 5
 	};
 	
-	// Icones 
+	// Icones.
 	private JLabel imgJ1P1;
 	private JLabel imgJ1P2;
 	private JLabel imgJ2P1;
@@ -154,6 +155,10 @@ public class PainelJogo implements Painel {
 	private Color ciano = new Color(0, 175, 225);
 	
 	public PainelJogo() {
+		
+		// Define as propriedades das fontes.
+		// Tambem define a ordem das pecas, os itens da roleta
+		// e ela propria.
 		String fontePadraoEscura = "Arial Black";
 		String fontePadrao = "Arial";
 		Font arialBlack = new Font(fontePadraoEscura, Font.PLAIN, 18);
@@ -248,6 +253,7 @@ public class PainelJogo implements Painel {
 					.addContainerGap())
 		);
 		
+		// Painel para os objetos e atributos de cada jogador.
 		JPanel painelCasteloAliado = new JPanel();
 		painelCasteloAliado.setBackground(new Color(212, 212, 212));
 		
@@ -558,7 +564,9 @@ public class PainelJogo implements Painel {
 					.addGap(5))
 		);
 		painelJ4P2.setLayout(gl_painelJ4P2);
+		// Termino desta definicao para os jogadores 2 e 4.
 		
+		// Criacao de um botao para rodar a roleta.
 		botaoRoletaRodar = new JButton("RODAR");
 		botaoRoletaRodar.addActionListener(new ListenerRoleta());
 		botaoRoletaRodar.setFont(arialBlack);
@@ -601,6 +609,7 @@ public class PainelJogo implements Painel {
 		);
 		painelRoletaInfo.setLayout(new GridLayout(2, 0, 0, 0));
 		
+		// Propriedades das roletas (tanto dos itens quando das imagens).
 		JLabel labelRoletadasRestantes = new JLabel("ROLETADAS RESTANTES");
 		labelRoletadasRestantes.setForeground(Color.BLACK);
 		labelRoletadasRestantes.setFont(new Font(fontePadrao, Font.BOLD, 10));
@@ -647,6 +656,8 @@ public class PainelJogo implements Painel {
 		roleta5 = new JButton("");
 		roleta5.addActionListener(new ListenerRodas(4));
 		painelRoleta.add(roleta5);
+		
+		// Continuacao do painel para os objetos e atributos de cada jogador (1 e 3).
 		painelCasteloAliado.setLayout(new GridLayout(1, 5, 0, 0));
 		
 		JPanel painelJ3P1 = new JPanel();
@@ -820,6 +831,7 @@ public class PainelJogo implements Painel {
 					.addGap(14))
 		);
 		painelCoroaAliada.setLayout(gl_painelCoroaAliada);
+		//Termino da ultima definicao e inicio de outra referente ao jogador 1 e 2.
 		
 		JPanel painelJ1P2 = new JPanel();
 		painelCasteloAliado.add(painelJ1P2);
@@ -886,6 +898,7 @@ public class PainelJogo implements Painel {
 		);
 		painelJ1P2.setLayout(gl_painelJ1P2);
 		
+		// Inicio das definicoes anteriores ja citadas, mas para os jogadores 2 e 3.
 		JPanel painelJ3P2 = new JPanel();
 		painelCasteloAliado.add(painelJ3P2);
 		
@@ -955,6 +968,7 @@ public class PainelJogo implements Painel {
 		
 	}
 	
+	// Cria um listener para "ouvir" as rodas.
 	private class ListenerRodas implements ActionListener {
 		
 		private int qualRoda;
@@ -963,6 +977,8 @@ public class PainelJogo implements Painel {
 			this.qualRoda = qualRoda;
 		}
 
+		// Metodo responsavel pelo travamento dos itens escolhidos
+		// durante a partida,
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			
@@ -990,12 +1006,15 @@ public class PainelJogo implements Painel {
 			else if (qualRoda == 3) roleta4.repaint();
 			else if (qualRoda == 4) roleta5.repaint();
 			
-			rodasTravamento[qualRoda] = !rodasTravamento[qualRoda]; // Inverte o próprio sinal
+			rodasTravamento[qualRoda] = !rodasTravamento[qualRoda]; // Inverte o proprio sinal
 			
 		}
 		
 	}
 	
+	// Metodo responsavel por um rand (meio que aleatorio, por isso
+	// a utilizacao do tempo) para o aparecimento dos itens ao jogador
+	// de forma aleatoria.
 	private void fazARoletaRodar() {
 		Random r1, r2, r3, r4, r5;
 		int i1, i2, i3, i4, i5;
@@ -1060,8 +1079,13 @@ public class PainelJogo implements Painel {
 		roleta5.repaint();
 	}
 	
+	// Criacao de um listener para a roleta.
 	private class ListenerRoleta implements ActionListener {
 		
+		// Metodo responsavel por alterar as imagens mediante a
+		// vez da rodada da roleta (moedasRestantes) e enviar
+		// a controladora a jogada se for a ultima vez que se rodou
+		// e aperta em atacar.
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if(moedasRestantes != 0) {
@@ -1105,6 +1129,8 @@ public class PainelJogo implements Painel {
 			}
 		}	
 		
+		// Metodo para retornar o vetor de retorno mediante ao que
+		// foi estabelecido na roleta.
 		private int[] verificarRoleta() {
 			
 			int energiaEsqAliado = 0;
@@ -1177,6 +1203,7 @@ public class PainelJogo implements Painel {
 		}
 	}
 	
+	// Metodo responsavel por jogador receber jogada.
 	public void receberJogada(int energiaEsq, int expEsq, int energiaDir, int expDir, int muro, int qualJogadorSou) {
 		if (qualJogadorSou == 1 || qualJogadorSou == 3) 
 			partida.getCasteloJ1J3().constroiMuro(muro);
@@ -1184,7 +1211,7 @@ public class PainelJogo implements Painel {
 		else if (qualJogadorSou == 2 || qualJogadorSou == 4) 
 			partida.getCasteloJ2J4().constroiMuro(muro);
 		
-		atualizaStatusCoroas();
+		atualizaStatusCoroas(); // Atualiza a "vida".
 		
 		Peca p1;
 		Peca p2;
@@ -1234,6 +1261,7 @@ public class PainelJogo implements Painel {
 		
 	}
 	
+	// Metodo responsavel por atacar em ordem (J1 e J2 // J3 e J4).
 	private void atacar() {
 		
 		Castelo casteloJ1J3 = partida.getCasteloJ1J3();
@@ -1325,6 +1353,8 @@ public class PainelJogo implements Painel {
 		
 	}
 	
+	// Metodo que atualiza o estado do seu castelo, da sua base, correspondendo
+	// ao valor do muro, e da vida.
 	private void atualizaStatusCoroas() {
 		int status2x = qtdJogadores == 4 ? 2 : 1;
 		int muroTotal = 6 * status2x;
@@ -1339,6 +1369,7 @@ public class PainelJogo implements Painel {
 		labelVidaJ2J4.setText("Vida: " + partida.getCasteloJ2J4().getVida() + "/" + 10);
 	}
 	
+	// Metodo responsavel por verificar qual jogador ganhou a partida.
 	private void verificaVitoria() {
 
 		Castelo casteloJ1J3 = partida.getCasteloJ1J3();
@@ -1372,6 +1403,7 @@ public class PainelJogo implements Painel {
 		
 	}
 	
+	// Metodo responsavel por iniciar a peca de determinado jogador durante a partida.
 	public void iniciarPecaDaPartida(int qualJogadorSou, int indexPeca1, int indexPeca2, int qtdJogadores) {
 
 		if (this.qualJogadorSou == -1) {
@@ -1429,6 +1461,7 @@ public class PainelJogo implements Painel {
 
 	}
 	
+	// Seta as informacoes do jogador na partida.
 	private void setInfoPartida(JLabel labelNivel, JLabel labelExp, JLabel labelEsq, JLabel labelDir, Peca peca, boolean eMoeda) {
 		
 		if      (peca.getNivel() == 1) labelExp.setForeground(bronze);
@@ -1463,6 +1496,7 @@ public class PainelJogo implements Painel {
 		this.partida = p;
 	}
 	
+	// Metodo que reseta a partida.
 	public void resetarPartida() {
 		moedasRestantes = 3;
 		imgMoeda1.setIcon(moedaCheia);
@@ -1482,6 +1516,7 @@ public class PainelJogo implements Painel {
 		
 	}
 	
+	// Metodo responsavel por designar em ordem quem, qual jogador, ataca primeiro.
 	private void alternaAtaqueEEspera() {
 		
 		boolean liberaJ1eJ2 = jogaJ1eJ2 && (qualJogadorSou == 1 || qualJogadorSou == 2);
@@ -1490,7 +1525,7 @@ public class PainelJogo implements Painel {
 		boolean poeEmEsperaJ1eJ2 = jogaJ1eJ2 == false && (qualJogadorSou == 1 || qualJogadorSou == 2);
 		boolean poeEmEsperaJ3eJ4 = jogaJ1eJ2 && (qualJogadorSou == 3 || qualJogadorSou == 4);
 		
-		if (liberaJ1eJ2 || liberaJ3eJ4) { // Libera pra atk (J1 e J2) ou (J3 e J4)
+		if (liberaJ1eJ2 || liberaJ3eJ4) { // Libera pra ataque (J1 e J2) ou (J3 e J4).
 			moedasRestantes = 3;
 			imgMoeda1.setIcon(moedaCheia);
 			imgMoeda2.setIcon(moedaCheia);
@@ -1505,7 +1540,7 @@ public class PainelJogo implements Painel {
 			botaoRoletaRodar.setEnabled(true);
 			botaoRoletaRodar.setText("RODAR");
 			
-		} else if (poeEmEsperaJ1eJ2 || poeEmEsperaJ3eJ4) { // Faz (J1 e J2) ou (J3 e J4) esperar
+		} else if (poeEmEsperaJ1eJ2 || poeEmEsperaJ3eJ4) { // Faz (J1 e J2) ou (J3 e J4) esperar.
 			moedasRestantes = 0;
 			imgMoeda1.setIcon(moedaVazia);
 			imgMoeda2.setIcon(moedaVazia);
@@ -1526,6 +1561,7 @@ public class PainelJogo implements Painel {
 		
 	}
 	
+	// Metodo que define a ordem de ataque de acordo com as pecas.
 	private void definirOrdemDeAtaque() {
 		Peca[] pecasJ1eJ2 = new Peca[4];
 		Peca[] pecasJ3eJ4 = new Peca[4];
@@ -1541,17 +1577,17 @@ public class PainelJogo implements Painel {
 		pecasJ1eJ2[2] = partida.getCasteloJ2J4().getPeca1J1();
 		pecasJ1eJ2[3] = partida.getCasteloJ2J4().getPeca2J1();
 		
-		// Pega qual a ordem de ataque das pecas
+		// Pega qual a ordem de ataque das pecas.
 		for (int i = 0; i < 4; i++) {
 			quaisPecas[i] = qualAOrdemDaPeca(pecasJ1eJ2[i]);
 		}
 		
-		// Ordena qual peca de qual jogador ira atacar primeiro
+		// Ordena qual peca de qual jogador ira atacar primeiro.
 		for (int i = 0; i < 4; i++) {
 			atacaPrimeiro = 999;
 			index = -1;
 			
-			// Ve qual a proxima peca que ataca primeiro
+			// Ve qual a proxima peca que ataca primeiro.
 			for (int j = 0; j < 4; j++) {
 				if(quaisPecas[j] < atacaPrimeiro) {
 					atacaPrimeiro = quaisPecas[j];
@@ -1561,7 +1597,7 @@ public class PainelJogo implements Painel {
 			
 			quaisPecas[index] = 999;
 			
-			// Pega a informacao do Index e a transforma para ser usada na String
+			// Pega a informacao do Index e a transforma para ser usada na String.
 			if (index == 0 || index == 1) {
 				qualJogador = 1;
 				index += 1;
@@ -1570,7 +1606,7 @@ public class PainelJogo implements Painel {
 				index -= 1;
 			}
 			
-			// Defini a ordem e escreve na String qual jogador e qual peca
+			// Define a ordem e escreve na String qual jogador e qual peca.
 			ordemPecasJ1eJ2[i] = "J" + qualJogador + "P" + index;
 		}
 		
@@ -1582,7 +1618,7 @@ public class PainelJogo implements Painel {
 			pecasJ3eJ4[2] = partida.getCasteloJ2J4().getPeca1J2();
 			pecasJ3eJ4[3] = partida.getCasteloJ2J4().getPeca2J2();
 			
-			// Pega qual a ordem de ataque das pecas
+			// Pega qual a ordem de ataque das pecas.
 			for (int i = 0; i < 4; i++) {
 				quaisPecas[i] = qualAOrdemDaPeca(pecasJ3eJ4[i]);
 			}
@@ -1591,7 +1627,7 @@ public class PainelJogo implements Painel {
 				atacaPrimeiro = 999;
 				index = -1;
 				
-				// Ve qual a proxima peca que ataca primeiro
+				// Ve qual a proxima peca que ataca primeiro.
 				for (int j = 0; j < 4; j++) {
 					if(quaisPecas[j] < atacaPrimeiro) {
 						atacaPrimeiro = quaisPecas[j];
@@ -1601,7 +1637,7 @@ public class PainelJogo implements Painel {
 				
 				quaisPecas[index] = 999;
 				
-				// Pega a informacao do Index e a transforma para ser usada na String
+				// Pega a informacao do Index e a transforma para ser usada na String.
 				if (index == 0 || index == 1) {
 					qualJogador = 3;
 					index += 1;
@@ -1610,12 +1646,14 @@ public class PainelJogo implements Painel {
 					index -= 1;
 				}
 				
-				// Defini a ordem e escreve na String qual jogador e qual peca
+				// Define a ordem e escreve na String qual jogador e qual peca.
 				ordemPecasJ3eJ4[i] = "J" + qualJogador + "P" + index;
 			}
 		}
 	}
 	
+	// Metodo chamado anteriormente para estabelecer a ordem entre as pecas em
+	// si e nao apenas as escolhidas por um jogador.
 	private int qualAOrdemDaPeca(Peca peca) {
 		int resposta = -1;
 		
@@ -1630,6 +1668,7 @@ public class PainelJogo implements Painel {
 		return resposta;
 	}
 	
+	// Metodo que ativa timer de sincronia.
 	private void setRotinaDeSincronia() {
 		timerSincronia = new Timer();
 		timerSincronia.schedule(new TimerTask() {
@@ -1642,6 +1681,8 @@ public class PainelJogo implements Painel {
 		}, 500, 500);
 	}
 	
+	// Metodo sincronizado (permite exclusao mutua) para a rotina de sincronia entre os
+	// jogadores, sendo a ordem de ataque, a alternatica e os ataques em si.
 	private synchronized void rotinaSincronia() {
 		boolean doisJogadoresProntos   = qtdJogadores == 2 && jogadoresProntos[0] && jogadoresProntos[1];
 		boolean quatroJogadoresProntos = qtdJogadores == 4 && jogadoresProntos[0] && jogadoresProntos[1] && jogadoresProntos[2] && jogadoresProntos[3];
@@ -1669,7 +1710,7 @@ public class PainelJogo implements Painel {
 		return painel;
 	}
 	
-
+	// Nao limpa os campos.
 	@Override
 	public void limparCampos() {
 		// Vazio

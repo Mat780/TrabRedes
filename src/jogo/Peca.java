@@ -74,11 +74,13 @@ public abstract class Peca implements Serializable {
 		return quandoAtacar;
 	}
 	
+	// Metodo que seta os valores de energia e experiencia da peca.
 	public void receberJogada(int energia, int exp) {
 		setEnergia(getEnergia() + energia);
 		setExperiencia(getExperiencia() + exp);
 	}
 	
+	// Metodos que sao implementados nas classes filhas.
 	public abstract int getID();
 	
 	public abstract void atacar(Castelo casteloInimigo, String jogador);

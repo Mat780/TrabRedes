@@ -17,6 +17,7 @@ public class InfoPartida implements Serializable {
 		this.jogador2 = usr2;
 	}
 	
+	// Metodo que atribui qual usuario e.
 	public void adicionarJogador(Usuario j) throws ExcecaoPartidaCheia {
 		
 		if (jogador1 == null) { 
@@ -35,6 +36,7 @@ public class InfoPartida implements Serializable {
 		
 	}
 	
+	// Metodo para retirar o jogador.
 	public void retirarJogador(Usuario j) {
 		if 		(jogador4.equals(j)) jogador4 = null;
 		else if (jogador3.equals(j)) jogador3 = null;
